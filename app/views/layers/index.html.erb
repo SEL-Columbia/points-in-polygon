@@ -1,0 +1,32 @@
+API example
+<p>
+  <%= link_to "a point in New York City", "/points/123,-74.006605,40.714623" %>
+  <br/>
+  <%= link_to "multi points", "/points/123,-74.006605,40.714623;456,8.568907,47.373419" %>
+</p>
+
+<h1>Listing layers</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Areas</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @layers.each do |layer| %>
+  <tr>
+    <td><%= layer.name %></td>
+    <td><%= layer.areas.count %></td>
+    <td><%= link_to 'Show', layer %></td>
+    <td><%= link_to 'Edit', edit_layer_path(layer) %></td>
+    <td><%= link_to 'Destroy', layer, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Layer', new_layer_path %>

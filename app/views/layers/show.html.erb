@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @layer.name %>
+</p>
+
+<p>
+  <b>Areas:</b>
+  <ul>
+    <% @layer.areas.each do |area| %>
+    <li><%= area.polygon %></li>
+    <% end -%>
+  </ul>
+  
+</p>
+
+
+<%= link_to 'Edit', edit_layer_path(@layer) %> |
+<%= link_to 'Back', layers_path %>
