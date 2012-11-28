@@ -10,4 +10,8 @@
  *
  *= require_self
  *= require_tree .
+ *= require leaflet
+ *= require leaflet.ie
  */
+
+#map { height: 680px; }

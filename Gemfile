@@ -38,6 +38,10 @@ gem "rgeo", "~> 0.3.19"
 # http://www.geojson.org/
 gem "rgeo-geojson", "~> 0.2.3"
 
+# This gem provides the leaflet.js map display library for your Rails 3 application.
+# http://rubygems.org/gems/leaflet-rails
+gem "leaflet-rails", "~> 0.4.5"
+
 group :development, :test do
   gem "quiet_assets", ">= 1.0.1"
   gem "pry-rails"
