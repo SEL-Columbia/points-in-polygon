@@ -102,9 +102,13 @@ class LayersController < ApplicationController
         :layer_id => area.layer_id,
         :area_id  => area.id,
         :points   => points,
-        :count    => points.count
+        :pointsWithinCount    => points.count
       }
       points_in_area << area_as_json
+    end
+
+    if params['idsonly'] && params['idsonly'] == 'true'
+      points_in_area.each { |p| p.delete(:points) }
     end
 
     result = {
@@ -132,6 +136,10 @@ class LayersController < ApplicationController
 
     # lon_lats = points.map{|point| [point[:lon], point[:lat]] }
     points_in_area = Area.contains_points_in_layer_json(params[:layer_id].to_i, points)
+
+    if params['idsonly'] && params['idsonly'] == 'true'
+      points_in_area.each { |p| p.delete(:points) }
+    end
 
     result = {
       :points_in_area => points_in_area

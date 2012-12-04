@@ -51,7 +51,7 @@ class Area < ActiveRecord::Base
         :layer_id => area.layer_id,
         :area_id  => area.id,
         :points   => points,
-        :count    => points.count
+        :pointsWithinCount    => points.count
       }
       points_in_area << area_as_json
     end
