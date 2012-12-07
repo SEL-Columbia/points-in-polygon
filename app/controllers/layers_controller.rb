@@ -149,6 +149,9 @@ class LayersController < ApplicationController
     #   {id => id, layer_id => layer_id, area_id => area_id, points => ( {id => id, x =>x, y =>y}, {id => id, x =>x, y =>y}, ...)},
     #   {id => id, layer_id => layer_id, area_id => area_id, points => ( {id => id, x =>x, y =>y}, {id => id, x =>x, y =>y}, ...)}
     # )
-    render :json => result
+    # render :json => result
+    @layer = Layer.find(params[:layer_id])
+    @result = result
+    render 'points_in_layer'
   end
 end

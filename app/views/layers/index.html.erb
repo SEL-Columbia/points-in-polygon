@@ -11,6 +11,8 @@ API example
   <tr>
     <th>Name</th>
     <th>Areas</th>
+    <th>Points</th>
+    <th></th>
     <th></th>
     <th></th>
     <th></th>
@@ -20,7 +22,13 @@ API example
   <tr>
     <td><%= layer.name %></td>
     <td><%= layer.areas.count %></td>
+    <td>
+      <%= form_tag "/layers/#{layer.id}/points" do %>
+        <%= text_area_tag "points_for_layer_#{layer.id}", '123,-104.9842,39.7392;101,-104.9842,39.7391;102,-104.9842,39.7390;801,-105.9372,35.6869' %>
+      <% end %>
+    </td>
     <td><%= link_to 'Show', layer %></td>
+    <td><%= link_to 'Query', '#', :class => 'query-layer', 'data-layer-id' => layer.id %></td>
     <td><%= link_to 'Edit', edit_layer_path(layer) %></td>
     <td><%= link_to 'Destroy', layer, method: :delete, data: { confirm: 'Are you sure?' } %></td>
   </tr>

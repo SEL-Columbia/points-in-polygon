@@ -41,12 +41,12 @@ class Area < ActiveRecord::Base
     where(conditions).joins(:layer).where("layers.id = ?", layer_id)
   }
 
-  def self.contains_points_in_layer_json(layer_id, points)
-    areas = contains_points_in_layer(layer_id, points)
+  def self.contains_points_in_layer_json(layer_id, query_points)
+    areas = contains_points_in_layer(layer_id, query_points)
 
     points_in_area = []
     areas.each do |area|
-      points = area.filter_including_points(points)
+      points = area.filter_including_points(query_points)
       area_as_json = {
         :layer_id => area.layer_id,
         :area_id  => area.id,
@@ -60,11 +60,25 @@ class Area < ActiveRecord::Base
   end
 
 
-  def filter_including_points(points)
-    points.find_all do |point|
+  def filter_including_points(filter_points)
+    filter_points.find_all do |point|
       lon_lat = RGEO_FACTORY.point(point[:lon], point[:lat]).projection
-      polygon.intersects?(lon_lat)
+      lon_lat.within?(polygon)
+      # polygon.intersects?(lon_lat)
     end
+  end
+
+  # result is like below
+  # {:points_in_area=>
+  # [{:layer_id=>18,
+  #   :area_id=>367,
+  #   :points=>[{:id=>"456", :lon=>"8.568907", :lat=>"47.373419"}],
+  #   :pointsWithinCount=>1},
+  #  {:layer_id=>18, :area_id=>568, :points=>[], :pointsWithinCount=>0}]}
+  def get_points_count(result)
+    # debugger
+    area_in_result = result[:points_in_area].find{ |a| a[:area_id] == self.id }
+    area_in_result ? area_in_result[:pointsWithinCount] : 0
   end
 
 end
