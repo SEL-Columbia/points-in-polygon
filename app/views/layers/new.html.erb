@@ -2,4 +2,45 @@
 
 <%= render 'form' %>
 
+<%= form_for(@layer, :url => upload_shapefile_layers_path, :html => {:multipart => true, :class => 'form-horizontal'}) do |f| %>
+  <legend>Shapefile format</legend>
+
+  <div class="control-group">
+    <%= f.label :name, 'Name', :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :name %>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <%= f.label :geo_file, 'Shapefile', :class => 'control-label' %>
+    <div class="controls">
+      <%= f.file_field :geo_file %>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <div class='controls'>
+      <%= f.submit nil, :class => "btn btn-primary", :disable_with => 'uploading' %>
+    </div>
+  </div>
+<% end %>
+
+<%= form_for(@layer, :url => upload_topojson_layers_path, :html => {:multipart => true, :class => 'form-horizontal'}) do |f| %>
+  <legend>Topojson format</legend>
+  <div class="control-group">
+    <%= f.label :upload, 'Topojson', :class => 'control-label' %>
+    <div class="controls">
+      <%= f.file_field :upload %>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <div class='controls'>
+      <%= f.submit nil, :class => "btn btn-primary", :disable_with => 'uploading' %>
+    </div>
+  </div>
+<% end %>
+
+
 <%= link_to 'Back', layers_path %>

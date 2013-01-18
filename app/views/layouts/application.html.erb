@@ -2,13 +2,17 @@
 <html>
 <head>
   <title>Pointsinarea</title>
-  <%= stylesheet_link_tag    "application", :media => "all" %>
+  <%= stylesheet_link_tag "application-all", :media => "all" %>
+  <!--[if lte IE 8]>
+  <%= stylesheet_link_tag "application-ie", :media => "all" %>
+  <![endif]-->
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
 </head>
-<body>
-
-<%= yield %>
+<body class="<%= controller_name %> <%= action_name %>">
+  <div class="container">
+    <%= yield %>
+  </div>
 
 </body>
 </html>

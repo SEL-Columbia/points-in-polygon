@@ -1,0 +1,23 @@
+#map { height: 680px; }
+
+.layers.show, .layers.points_in_layer, .multidimensional_data.show, .permalink.show, .multilevel_shapefiles.show {
+  .container {
+      margin-right: 0;
+      margin-left: 0;
+      width: auto;
+  }
+}
+
+#spinner {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  top: 320px;
+}
+
+.breadcrumb {
+  z-index: 2147483643;
+  position: fixed;
+  top: 0px;
+  left: 80px;
+}

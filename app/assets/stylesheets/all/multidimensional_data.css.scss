@@ -1,0 +1,78 @@
+.attrs-panel {
+  text-align: left;
+  line-height: 18px;
+  color: #555;
+
+  padding: 8px;
+  font: 14px/18px Arial, Helvetica, sans-serif;
+  background: white;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  h4 {
+    margin: 0 0 5px;
+    color: #777;
+  }
+  list-style: none;
+  li {
+
+    color: #12C;
+    padding: 5px;
+    margin-bottom: 5px;
+    &:hover {
+      background: #1CADDC;
+      border-radius: 3px;
+      color: #FFF;
+    }
+    &.active {
+      background: #08C;
+      border-radius: 3px;
+      color: #FFF;
+    }
+    i {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin-right:8px;
+      opacity: 0.7;
+      border: 1px #FFF solid;
+    }
+    .filter-count {
+      float: right;
+      margin-left: 10px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      text-overflow:ellipsis;overflow:hidden;white-space: nowrap; // use ellipsis (...) and truncate the name in the display
+      display: inline-block;
+      max-width:140px;
+      min-width:40px;
+    }
+  }
+}
+
+.multi-data {
+  text-align: left;
+  line-height: 18px;
+  color: #555;
+
+  padding: 8px;
+  font: 14px/18px Arial, Helvetica, sans-serif;
+  background: white;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  h4 {
+    margin: 0 0 5px;
+    color: #777;
+  }
+  #multi-data {
+    float: left;
+  }
+}
+
+.leaflet-popup-content {
+  max-height: 680px;
+  overflow: scroll;
+}

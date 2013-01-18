@@ -1,4 +1,7 @@
-<%= link_to 'Back', layers_path %>
+<% if controller_name == 'layers' %>
+<%= link_to 'Back', layers_path %> |
+<%= link_to  @permalink, @permalink %>
+<% end %>
 <div id="map"></div>
 <script type="text/javascript">
 $(document).ready(function(){
@@ -6,17 +9,27 @@ $(document).ready(function(){
   // New York
   // var map = L.map('map').setView([40.713955826286046, -73.99703979492188], 13);
   // Denver, State view
-  var map = L.map('map').setView([39.7392, -104.9842], 5);
+  //var map = L.map('map').setView([39.7392, -104.9842], 5);
+  var data_json = <%= raw @data_json %>
+  var viewPoint = data_json['view_point'];
+  var map = L.map('map').setView(viewPoint, 11);
 
-  // add a CloudMade tile layer with style #997
-  L.tileLayer('http://{s}.tile.cloudmade.com/42c6e747565540068a4bb4ad883f1f41/997/256/{z}/{x}/{y}.png', {
-      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
-  }).addTo(map);
+  pointsCounts = data_json['points_counts_array'];
 
-  <% @layer.areas.each do |area| %>
-    <% points_count = area.get_points_count(@result) %>
-    L.polygon(<%= (Area::RGEO_FACTORY.unproject area.polygon.exterior_ring).points.map {|point| [point.y, point.x]} %>, style(<%= points_count %>)).addTo(map);
-  <% end %>
+  var colorGroup = getColorGroup(pointsCounts);
+
+  var areasLayer = new L.LayerGroup();
+  var area_points = data_json['area_points'];
+  var points_count = data_json['points_count']
+  for(k in area_points) {
+    if(area_points.hasOwnProperty(k)) {
+      var points = area_points[k];
+      var pointsCount = points_count[k];
+      addArea(areasLayer, points, pointsCount, colorGroup);
+    }
+  }
+
+  init(map, colorGroup, {"baseLayers":{}, "overLayers": {"Polygon Layer": areasLayer} });
 });
 
 </script>

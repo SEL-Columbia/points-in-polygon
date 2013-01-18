@@ -1,0 +1,175 @@
+<% if controller_name == 'multidimensional_data' %>
+<%= link_to 'Back', data_upload_path %> |
+<%= link_to  @permalink, @permalink %>
+<% end %>
+
+<div id="map" style="height: 600px"></div>
+<script type="text/javascript">
+$(document).ready(function(){
+  // var map = L.map('map').setView([51.505, -0.09], 13);
+  // New York
+  // var map = L.map('map').setView([40.713955826286046, -73.99703979492188], 13);
+  // Denver, State view
+
+  // rows
+  // [ ["food_type": "meat", "_gps_latitude": "41.12313", "_gps_longtitude": "28.34534"], ... , [] ]
+  var data_json = <%= raw @data_json %>;
+  var rows = data_json['rows'][1];
+  window.rows = rows;
+
+  var radius = 100;
+
+  var lat_str = data_json['rows'][0].at(-2);
+  var lon_str = data_json['rows'][0].at(-1);
+
+  var layer_id = data_json['layer_id'];
+  window.layer_id = layer_id;
+
+  viewPoint = [rows[0][lat_str], rows[0][lon_str]];
+
+  var map = L.map('map').setView(viewPoint, 5);
+  window.map = map;
+
+  pointsCounts = data_json['points_counts_array'];
+
+  var colorGroup = getColorGroup(pointsCounts);
+
+  // Areas Layer
+  var areaTiles = {};
+  window.areaTiles = areaTiles;
+
+  var areasLayer = new L.LayerGroup();
+  var area_points = data_json['area_points'];
+
+  for(k in area_points) {
+    if(area_points.hasOwnProperty(k)) {
+      var points = area_points[k];
+      var pointsCount = data_json['points_count'][k];
+      areaTiles[k] = addArea(areasLayer, points, pointsCount, colorGroup);
+    }
+  }
+
+  // Points
+  var colsLayer = {};
+  window.colsLayer = colsLayer;
+  pointsLayer = new L.FeatureGroup();
+  //pointsLayer = new L.MarkerClusterGroup();
+  window.pointsLayer = pointsLayer;
+  for(k in area_points) {
+    if(area_points.hasOwnProperty(k)) {
+      //var marker_point = data_json['marker_point'][k];
+      var marker_point = areaTiles[k].getBounds().getCenter();
+      marker = L.marker(marker_point, {
+            icon: new L.Icon({
+              iconUrl: '/assets/marker-icon.png',
+              shadowUrl: '/assets/marker-shadow.png'
+            })
+          }).on('click', function(e){
+            for(i_index in data_json['row_indexes'][this.area_id]) {
+              index = parseInt(data_json['row_indexes'][this.area_id][i_index]);
+              if(index >=0 && index < rows.length && rows[index]['point']) {
+                if(this.show_points) {
+                  pointsLayer.removeLayer(rows[index]['point']);
+                } else {
+                  pointsLayer.addLayer(rows[index]['point']);
+                }
+              }
+            }
+            this.show_points = !this.show_points;
+          }).addTo(pointsLayer);
+      marker.bindPopup("<b>Count: "+ data_json['points_count'][k] + "</b>", {offset: new L.Point(12, 9)}).openPopup();
+      marker.area_id = k;
+      marker.show_points = false;
+    }
+  }
+  for(var i=0;i < rows.length;i++) {
+    var lat = rows[i][lat_str];
+    var lon = rows[i][lon_str];
+    if(lat.match(/\d+\.\d+/) && lon.match(/\d+\.\d+/)) {
+      info = "<table>";
+      if (rows[i].hasOwnProperty('picture')) {
+        info += '<img src="https://formhub.s3.amazonaws.com/ossapmdgs/attachments/' + rows[i]['picture'].replace('.jpg', '-small.jpg') + '">';
+      }
+      for(k in rows[i]) {
+        if(rows[i].hasOwnProperty(j) && k != 'point') {
+          info += "<tr><td>" + k + " : </td><td>" + rows[i][k] + "</td></tr>";
+        }
+      }
+      info += "</table>";
+      point = L.circle([lat, lon], radius, {
+              color: 'red',
+              fillColor: 'red',
+              fillOpacity: 1
+              }).bindPopup(info);
+      rows[i]['point'] = point;
+    }
+  }
+
+  var cols = data_json['rows'][0].to(-2);
+  var colColors = {};
+  window.colColors = colColors;
+  for(var i=0;i < cols.length;i++){
+    colsLayer[cols[i]] = new L.FeatureGroup();
+    var attrs = [];
+    $(rows).each(function(index){
+      attrs.push(rows[index][cols[i]]);
+    });
+    attrs = attrs.unique();
+    var attrColors = {};
+    $(attrs).each(function(index){
+      color = '#'+(function(h){return new Array(7-h.length).join("0")+h})((Math.random()*0x1000000<<0).toString(16));
+      attrColors[attrs[index]] = color;
+    });
+    colColors[cols[i]] = attrColors;
+    for(var j=0;j < rows.length;j++){
+      var lat = rows[j][lat_str];
+      var lon = rows[j][lon_str];
+      if(lat.match(/\d+\.\d+/) && lon.match(/\d+\.\d+/)) {
+        info = "<table>";
+        if (rows[j].hasOwnProperty('picture')) {
+          info += '<img src="https://formhub.s3.amazonaws.com/ossapmdgs/attachments/' + rows[i]['picture'].replace('.jpg', '-small.jpg') + '">';
+        }
+        for(k in rows[j]) {
+          if(rows[j].hasOwnProperty(k) && k != 'point') {
+            info += "<tr><td>" + k + " : </td><td>" + rows[j][k] + "</td></tr>";
+          }
+        }
+        info += "</table>";
+        point = L.circle([lat, lon], radius, {
+            color: attrColors[rows[j][cols[i]]],
+            fillColor: attrColors[rows[j][cols[i]]],
+            fillOpacity: 1
+          }).addTo(colsLayer[cols[i]]);
+        if(!rows[j]['point']) {
+          rows[j]['point'] = {};
+        }
+        point.bindPopup(info);
+        rows[j]['point'][cols[i]] = point;
+      }
+    }
+    colsLayer[cols[i]].colName = cols[i];
+    colsLayer[cols[i]].onAdd = selectAttr;
+  }
+
+  init(map, colorGroup, {"baseLayers": colsLayer, "overLayers": {"Polygon Layer": areasLayer, "Points Layer": pointsLayer}});
+
+  // Attributes selection
+  //attrSelect = L.control({position: 'topright'});
+
+  //attrSelect.onAdd = function(map) {
+  //  this._div = L.DomUtil.create('div', 'multi-data leaflet-control');
+  //  select = $('#multi_data').remove();
+  //  $(this._div).append(select);
+  //  this._div.firstChild.onmousedown = this._div.firstChild.ondblclick = L.DomEvent.stopPropagation;
+
+  //  return this._div
+  //};
+
+  //attrSelect.addTo(map);
+
+  //$('#multi_data').change(function(){
+  //  selectAttr(this);
+  //});
+});
+
+</script>

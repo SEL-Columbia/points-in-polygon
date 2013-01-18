@@ -1,13 +1,17 @@
+require 'json'
 class Area < ActiveRecord::Base
-  attr_accessible :polygon
+  attr_accessible :polygon, :multipolygon, :unproject_exterior_ring, :level_id, :parent_id
+  #serialize :unproject_exterior_ring, Array
 
   belongs_to :layer
 
   RGEO_FACTORY = RGeo::Geographic.simple_mercator_factory
   set_rgeo_factory_for_column :polygon, RGEO_FACTORY.projection_factory
+  set_rgeo_factory_for_column :multipolygon, RGEO_FACTORY.projection_factory
 
   EWKB = RGeo::WKRep::WKBGenerator.new(:type_format => :ewkb, :emit_ewkb_srid => true, :hex_format => true)
 
+  # FIXME: unused method!
   # polygon_contains_point([-74.006605, 40.714623])
   scope :polygon_contains_point, lambda { |lon_lat|
     lon, lat = lon_lat
@@ -16,33 +20,38 @@ class Area < ActiveRecord::Base
   }
 
   # polygon_contains_points([[-74.006605, 40.714623], ...])
-  scope :polygon_contains_points, lambda { |lon_lats|
+  scope :polygon_contains_points, lambda { |lon_lats, tolerance = nil|
     conditions = []
+    polygon_sql = tolerance ? "ST_simplify(polygon, #{tolerance})" : "polygon"
+
     lon_lats.each do |lon_lat|
       lon, lat = lon_lat
       ewkb = EWKB.generate(RGEO_FACTORY.point(lon, lat).projection)
-      conditions << "ST_Intersects(polygon, ST_GeomFromEWKB(E'\\\\x#{ewkb}'))"
+      conditions << "ST_Intersects(#{polygon_sql}, ST_GeomFromEWKB(E'\\\\x#{ewkb}'))"
     end
+
     conditions = conditions.join(" or ")
     where(conditions)
   }
 
   # polygon_contains_points([[-74.006605, 40.714623], ...])
-  scope :contains_points_in_layer, lambda { |layer_id, points|
+  scope :contains_points_in_layer, lambda { |layer_id, points, tolerance|
     lon_lats = points.map{|point| [point[:lon], point[:lat]] }
 
     conditions = []
+    polygon_sql = tolerance ? "ST_simplify(polygon, #{tolerance})" : "polygon"
+
     lon_lats.each do |lon_lat|
       lon, lat = lon_lat
       ewkb = EWKB.generate(RGEO_FACTORY.point(lon, lat).projection)
-      conditions << "ST_Intersects(polygon, ST_GeomFromEWKB(E'\\\\x#{ewkb}'))"
+      conditions << "ST_Intersects(#{polygon_sql}, ST_GeomFromEWKB(E'\\\\x#{ewkb}'))"
     end
     conditions = conditions.join(" or ")
     where(conditions).joins(:layer).where("layers.id = ?", layer_id)
   }
 
-  def self.contains_points_in_layer_json(layer_id, query_points)
-    areas = contains_points_in_layer(layer_id, query_points)
+  def self.contains_points_in_layer_json(layer_id, query_points, tolerance)
+    areas = contains_points_in_layer(layer_id, query_points, tolerance)
 
     points_in_area = []
     areas.each do |area|
@@ -79,6 +88,43 @@ class Area < ActiveRecord::Base
     # debugger
     area_in_result = result[:points_in_area].find{ |a| a[:area_id] == self.id }
     area_in_result ? area_in_result[:pointsWithinCount] : 0
+  end
+
+  def get_marker_point(result)
+    area_in_result = result[:points_in_area].find { |a| a[:area_id] == self.id }
+    area_in_result ? area_in_result[:marker_point] : [0, 0]
+  end
+
+  def get_row_indexes(result)
+    area_in_result = result[:points_in_area].find { |a| a[:area_id] == self.id }
+    area_in_result ? area_in_result[:row_indexes] : [-1]
+  end
+
+  # Return simplified polygon
+  def simplified_polygon(tolerance)
+    if tolerance
+      geos_poly = polygon.fg_geom
+      simplified_geos_poly = geos_poly.simplify(tolerance)
+      Area::RGEO_FACTORY.projection_factory.wrap_fg_geom(simplified_geos_poly)
+    else
+      polygon
+    end
+  end
+
+  after_create :save_unproject_exterior_ring
+  def save_unproject_exterior_ring
+    if self.polygon
+      self.update_attributes(:unproject_exterior_ring => JSON.generate((Area::RGEO_FACTORY.unproject self.polygon.exterior_ring).points.map{|point| [point.y, point.x]}))
+    elsif self.multipolygon
+      u_e_r = []
+      self.multipolygon.each do |p|
+        u_e_r << (Area::RGEO_FACTORY.unproject p.exterior_ring).points.map{|point| [point.y, point.x]}
+      end
+      self.update_attributes(:unproject_exterior_ring => JSON.generate(u_e_r))
+    else
+      return true
+    end
+    self.save
   end
 
 end

@@ -1,0 +1,355 @@
+$(document).ready(function(){
+  var levelBread = {};
+  window.levelBread = levelBread;
+  var inLoading = false;
+  var justChangeLevel = false;
+  addSpin = function () {
+    $('#map').css({opacity: 0.5});
+    var opts = {
+      lines: 11, // The number of lines to draw
+      length: 6, // The length of each line
+      width: 4, // The line thickness
+      radius: 10, // The radius of the inner circle
+      corners: 1, // Corner roundness (0..1)
+      rotate: 0, // The rotation offset
+      color: '#000', // #rgb or #rrggbb
+      speed: 1, // Rounds per second
+      trail: 60, // Afterglow percentage
+      shadow: false, // Whether to render a shadow
+      hwaccel: false, // Whether to use hardware acceleration
+      className: 'spinner', // The CSS class to assign to the spinner
+      zIndex: 2e9, // The z-index (defaults to 2000000000)
+      top: 'auto', // Top position relative to parent in px
+      left: 'auto' // Left position relative to parent in px
+    };
+
+    var target = document.getElementById('spinner');
+    var spinner = new Spinner(opts).spin(target);
+    return spinner;
+  }
+
+  function expandLowerLevel(e) {
+
+    if (inLoading) {
+      return;
+    }
+    inLoading = true;
+    map.fitBounds(e.target.getBounds());
+    levelInfo['area_id'] = e.target.areaId;
+     
+    drawLevel(levelInfo);
+  }
+
+  addLevelArea = function(map, points, count, colorGroup) {
+    var polyTile = null;
+    if (Array.isArray(points[0][0])) {
+      polyTile = L.multiPolygon(points, style(count, colorGroup)).addTo(map);
+    } else {
+      polyTile = L.polygon(points, style(count, colorGroup)).addTo(map);
+    }
+
+    // Binding listeners to every tile
+    polyTile.on({
+      mouseover: highlightFeature,
+      mouseout: resetHighlight,
+      click: expandLowerLevel
+    });
+    return polyTile;
+  }
+
+  $('ul.breadcrumb li a').live('click', function(){
+
+    if (inLoading) {
+      return;
+    }
+    inLoading = true;
+    $(this).parent().nextAll().remove();
+    var level = $(this).parent().data('level');
+    $(this).parent().remove();
+
+    var newLevelInfo = levelBread[level - 1];
+    levelInfo = newLevelInfo;
+
+    //var spinner = addSpin();
+    drawLevel(newLevelInfo);
+    //spinner.stop();
+
+    map.fitBounds(areaTiles[levelInfo['area_id']].getBounds());
+  });
+
+  // points: [row_index1, row_index2]
+  function addPoints(points) {
+    for(var k in points) {
+      rows[points[k]].rowIndex = points[k];
+      var lat = rows[points[k]][lat_str];
+      var lon = rows[points[k]][lon_str];
+      if(lat.match(/\d+\.\d+/) && lon.match(/\d+\.\d+/)) {
+        var divNode = document.createElement('DIV');
+        var info = "<table>";
+        if (rows[points[k]].hasOwnProperty('picture')) {
+          info += '<tr><td colspan="2"><img src="https://formhub.s3.amazonaws.com/ossapmdgs/attachments/' + rows[points[k]]['picture'].replace('.jpg', '-small.jpg') + '"></td></tr>';
+        }
+        for(var i in rows[points[k]]) {
+          if(rows[points[k]].hasOwnProperty(i) && i != 'point') {
+            info += "<tr><td>" + i + " : </td><td>" + rows[points[k]][i] + "</td></tr>";
+          }
+        }
+        info += "</table>";
+        divNode.innerHTML = info;
+        var point = L.circle([lat, lon], 300, {
+          color: 'red',
+            fillColor: 'red',
+            fillOpacity: 1
+        }).bindPopup(divNode, {maxWidth: 1000}).addTo(pointsLayer);
+        point.rowIndex = i;
+        if(!rows[points[k]]['point']){
+          rows[points[k]]['point'] = {};
+        }
+        rows[points[k]]['point']['baseRedPoint'] = point;
+        pointsOnMap.push(rows[points[k]]);
+      }
+    }
+  }
+
+  function removeBreadcrumb(oldLevel) {
+    if(oldLevel != levelInfo['level']) {
+      var oldActive = $('ul.breadcrumb li.active');
+      oldActive.html("<a href='#'>Level " + oldLevel + "</a> <span class=divider'>/</span>");
+      oldActive.removeClass('active');
+      var newLevel = "<li class='active' data-level='" + levelInfo['level'] + "'>Level " + levelInfo['level'] + "</li>";
+      $('ul.breadcrumb').append(newLevel);
+    }
+  }
+
+  function showChildrenAreas(counts, children) {
+    var countValues = []
+      for(var k in counts) {
+        if(counts.hasOwnProperty(k)) {
+          countValues.push(counts[k]);
+        }
+      }
+    var colorGroup = getColorGroup(countValues);
+    for(var k in areaTiles) {
+      if(areaTiles.hasOwnProperty(k)){
+        areasLayer.removeLayer(areaTiles[k]);
+      }
+    }
+    for(var k in children){
+      if(children.hasOwnProperty(k)){
+        var points = children[k];
+        var count = counts[k];
+        if(typeof count === "undefined") {
+          count = 0;
+        }
+        areaTiles[k] = addLevelArea(areasLayer, points, count, colorGroup);
+        areaTiles[k].areaId = k;
+      }
+    }
+    return colorGroup;
+  }
+
+  drawLevel = function(info) {
+    checkedRadio = $('.leaflet-control-layers-base input:checked');
+    checkedSpan = checkedRadio.closest('label').children('span');
+    var selected = checkedSpan.text().replace(/^\s+|\s+$/g, '');
+
+    if($.inArray(levelInfo['area_id'].toString(), levelInfo['clicked_areas']) >= 0) {
+      var oldPoints = [];
+      var flag = false;
+      for(var k in pointsOnMap) {
+        if(pointsOnMap.hasOwnProperty(k) && pointsOnMap[k].areaId == levelInfo['area_id']) {
+          pointsLayer.removeLayer(pointsOnMap[k]['point']['baseRedPoint']);
+          for(var i in colsLayer) {
+            colsLayer[i].removeLayer(pointsOnMap[k]['point'][i]);
+          }
+          oldPoints.push(pointsOnMap[k]);         
+        }
+      }
+      for(var k in oldPoints) {
+        pointsOnMap.splice($.inArray(oldPoints[k], pointsOnMap), 1);
+      }
+      levelInfo['clicked_areas'] = $.grep(levelInfo['clicked_areas'], function(value){
+        return value != levelInfo['area_id'];
+      });
+
+      inLoading = false;
+
+      return;
+    }
+
+    var spinner = addSpin();
+    var oldLevel = levelInfo['level'];
+
+    levelBread[levelInfo['level']] = levelInfo;
+
+    $.post('/multilevel/expand', {layer_id: levelInfo['layer_id'], area_id: levelInfo['area_id'], level: levelInfo['level']}, 
+      function(data) {
+        var oldAreaId = data['old_area_id'];
+        var children = data['children'];
+        var counts = data['counts'];
+        var points = data['points'];
+        var allPoints = data['all_points_existed'];
+        if(points && points.length > 0) {
+   
+          levelInfo['clicked_areas'].push(levelInfo['area_id']);
+          tmpClickedAreas = levelInfo['clicked_areas'];
+
+          addPoints(points);
+
+          // add the points based on cols attr at the same time
+          // for attribute filter
+          for(var k in colsLayer) {
+            if(colsLayer.hasOwnProperty(k)) {
+              colsLayer[k].clearLayers();
+            }
+          }
+          addPointsToColsLayer(pointsOnMap);
+          //pointsSelected = allPointsExisted.slice();
+          $('.attrs-panel').show();
+
+          //updateAllControls(selected);
+
+          updatePointsBasedOnSelected(selected);
+          makeUpdateLegend(selected);
+
+          levelInfo = data['level_info'];
+          levelInfo['clicked_areas'] = tmpClickedAreas;
+          if(levelInfo['clicked_areas'].length == 0) {
+            allPointsExisted = [];
+            pointsSelected = [];
+          }
+
+        } else {
+          justChangeLevel = true;
+          var colorGroup = showChildrenAreas(counts, children);
+          $('.legend-info').remove();
+          addLegend(map, colorGroup);
+          pointsOnMap = [];
+          allPointsExisted = [];
+
+          if(allPoints) {
+            for(var k in allPoints){
+              for(var j in allPoints[k]) {
+                rows[allPoints[k][j]].rowIndex = allPoints[k][j];
+                rows[allPoints[k][j]].areaId = k;
+                allPointsExisted.push(rows[allPoints[k][j]]);
+              }
+            }
+            pointsSelected = allPointsExisted.slice();
+          }
+
+          for(var k in colsLayer) {
+            colsLayer[k].clearLayers();
+            map.removeLayer(colsLayer[k]);
+          }
+          pointsLayer.clearLayers();
+          checkedRadio = $('.leaflet-control-layers-base input:checked').prop('checked', false);
+
+          levelInfo = data['level_info'];
+          levelInfo['clicked_areas'] = [];
+        }
+
+        removeBreadcrumb(oldLevel);
+
+
+        spinner.stop();
+        $('#map').css({opacity: 1});
+
+        if(points.length <=0) {
+          $('.attrs-panel').remove();
+          for(var k in colsLayer) {
+            if(colsLayer.hasOwnProperty(k)) {
+              colsLayer[k].eachLayer(map.removeLayer, map);
+              colsLayer[k]._map = null;
+            }
+          }
+          
+          if(pointsLayer) {
+            pointsLayer._map = map;
+            pointsLayer.eachLayer(map.addLayer, map);
+          }
+        }
+        inLoading = false;
+      }
+    );
+    
+  }
+  function updateAllControls(selected) {
+    if(selected) {
+      addAttrPanel(selected);
+      $('input:radio[name="select-all"][value="1"]').prop('checked', true);
+      $('.attrs-panel li').each(function(i){
+        $(this).addClass('active');
+      });
+
+      bindSelectAll(selected);
+      bindAttrLiClick(selected);
+    }
+    
+    makeUpdateLegend(selected);
+  }
+  makeUpdateLegend = function(selected){
+    if(justChangeLevel){
+      justChangeLevel = false;
+      if(typeof spinner != 'undefined'){
+        //spinner.stop();
+      }
+      if(typeof attrLiClickSpinner != 'undefined') {
+        attrLiClickSpinner.stop();
+      }
+      $('#map').css({opacity: 1});
+
+      return;
+    }
+
+    var points = [];
+    // Get all the points which used to query
+    for(var i=0;i<pointsSelected.length;i++){
+      points.push(parseInt(pointsSelected[i].rowIndex));
+    }
+
+    var areaIds = [];
+    areasLayer.eachLayer(function(l){
+      areaIds.push(l.areaId);
+    });
+
+    // Ajax to get tha data
+    $.post('/multilevel/findPointsInAreas', {area_ids: areaIds, points: points},
+      function(data){
+        // {AREA_ID => count, ...}
+        var counts = data['counts'];
+        var areas = [];
+        var countArr = [];
+        for(var k in counts){
+          if(counts.hasOwnProperty(k)) {
+            countArr.push(counts[k]);
+            areas.push(k);
+          }
+        }
+        var colorGroup = getColorGroup(countArr);
+
+        $('.legend-info').remove();
+        if(countArr.length > 0) {
+          addLegend(map, colorGroup);
+        }
+
+        areasLayer.eachLayer(function(l){
+          var newStyle = null;
+          if($.inArray(l.areaId, areas) >= 0) {
+            newStyle = style(counts[l.areaId], colorGroup);
+            l.setStyle(style(counts[l.areaId], colorGroup));
+          } else {
+            newStyle = style(0, [[1, 1]]);
+          }
+          l.setStyle(newStyle);
+          l.originStyle = newStyle;
+          l._options = newStyle;
+        });
+        if(typeof attrLiClickSpinner != 'undefined') {
+          attrLiClickSpinner.stop();
+        }
+        $('#map').css({opacity: 1});
+      }
+    );
+  }
+});

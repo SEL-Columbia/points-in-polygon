@@ -1,0 +1,105 @@
+<% if controller_name == 'multilevel_shapefiles' %>
+<%= link_to 'Back', layers_path %> |
+<%= link_to  @permalink, @permalink %>
+<% end %>
+<ul class="breadcrumb">
+  <li class="active" data-level='0'>Level 0</li>
+</ul>
+
+
+<div id="spinner"></div>
+
+<div id="map"></div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var data_json = <%= raw @data_json %>;
+  var rows = data_json['rows'][1];
+  window.rows = rows;
+  var layer_id = data_json['layer_id'];
+  window.layer_id = layer_id;
+
+  var lat_str = data_json['rows'][0].at(-2);
+  var lon_str = data_json['rows'][0].at(-1);
+  window.lat_str = lat_str;
+  window.lon_str = lon_str;
+  
+  var viewPoint = data_json['view_point'];
+
+  var map = L.map('map').setView(viewPoint, 5);
+  window.map = map;
+
+  var pointsCounts = data_json['points_counts_array'];
+  var colorGroup = getColorGroup(pointsCounts);
+
+  // Areas Layer
+  var areaTiles = {};
+  window.areaTiles = areaTiles;
+
+  var areasLayer = new L.LayerGroup();
+  window.areasLayer = areasLayer;
+  var area_points = data_json['area_points'];
+  var keys = [];
+
+  for(var k in area_points) {
+    if(area_points.hasOwnProperty(k)) {
+      keys.push(k);
+      var points = area_points[k];
+      var pointsCount = data_json['points_count'][k];
+      areaTiles[k] = addLevelArea(areasLayer, points, pointsCount, colorGroup);
+      areaTiles[k].areaId = k;
+    }
+  }
+
+  // Points Layer
+  var pointsLayer = new L.FeatureGroup();
+  window.pointsLayer = pointsLayer;
+
+  var allPointsExisted = [];
+  window.allPointsExisted = allPointsExisted;
+
+  var pointsOnMap = [];
+  window.pointsOnMap = pointsOnMap;
+
+  var pointsSelected = [];
+  window.pointsSelected = pointsSelected;
+
+  var levelInfo = {'level': 0, 'layer_id': layer_id, 'area_id': parseInt(keys[0]), 'clicked_areas': []}
+  window.levelInfo = levelInfo;
+  levelBread[-1] = {'level': -1, 'layer_id': layer_id, 'area_id': parseInt(keys[0])};
+
+  // Cols control
+  var colColors = {};
+  window.colColors = colColors;
+  var cols = data_json['rows'][0].to(-2);
+  var colsLayer = {};
+  window.colsLayer = colsLayer;
+  for(var i=0;i < cols.length;i++) {
+    colsLayer[cols[i]] = new L.FeatureGroup();
+    colsLayer[cols[i]].colName = cols[i];
+    colsLayer[cols[i]].onAdd = selectAttr;
+  }
+  var prettyColors = ["#DE1841", "#5DD517", "#1680CA", "#6016CA", "#FF1CF6", "#FF8B1C", "#EBFF1C", "#1CA4FF", "#F44747", "#9BDC00", "#E747C5", "#1C1841", "#462E46", "#61605B"];
+  window.prettyColors = prettyColors;
+
+  for(var k in colsLayer) {
+    // attribute values of the col
+    var attrs = [];
+    $(rows).each(function(index){
+      attrs.push(rows[index][k]);
+    });
+    attrs = attrs.unique();
+    // {ATTR_VALUE: randomColor, ...}
+    var attrColors = {};
+    $(attrs).each(function(index){
+      //color = '#'+(function(h){return new Array(7-h.length).join("0")+h})((Math.random()*0x1000000<<0).toString(16));
+      color = prettyColors[index % prettyColors.length];
+      attrColors[attrs[index]] = color;
+      });
+    // {Cols_Name: attrColors}
+    colColors[k] = attrColors;
+  }
+
+  init(map, colorGroup, {"baseLayers": colsLayer, "overLayers": {"Polygon Layer": areasLayer, "Points Layer": pointsLayer}});
+});
+</script>

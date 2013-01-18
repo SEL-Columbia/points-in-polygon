@@ -1,23 +1,31 @@
-API example
+<h1>
+  API example
+</h1>
 <p>
   <%= link_to "a point in New York City", "/points/123,-74.006605,40.714623" %>
   <br/>
   <%= link_to "multi points", "/points/123,-74.006605,40.714623;456,8.568907,47.373419" %>
 </p>
+<hr>
 
 <h1>Listing layers</h1>
 
-<table>
+<%= link_to 'New Layer', new_layer_path %>
+
+<table class="table table-hover table-striped">
+  <thead>
   <tr>
     <th>Name</th>
     <th>Areas</th>
     <th>Points</th>
-    <th></th>
+    <th>Actions</th>
     <th></th>
     <th></th>
     <th></th>
   </tr>
+</thead>
 
+<tbody>
 <% @layers.each do |layer| %>
   <tr>
     <td><%= layer.name %></td>
@@ -27,14 +35,21 @@ API example
         <%= text_area_tag "points_for_layer_#{layer.id}", '123,-104.9842,39.7392;101,-104.9842,39.7391;102,-104.9842,39.7390;801,-105.9372,35.6869' %>
       <% end %>
     </td>
-    <td><%= link_to 'Show', layer %></td>
-    <td><%= link_to 'Query', '#', :class => 'query-layer', 'data-layer-id' => layer.id %></td>
+    <td><%= link_to 'Show', layer %>(<%= link_to 'json', layer_path(layer, :format => :json) %>)</td>
+    <td><%= link_to 'Query', '#', :class => 'query-layer', 'data-layer-id' => layer.id %>(<%= link_to 'json', '#', :class => 'query-layer', :data => { 'layer-id' => layer.id, :format => 'json' } %>)</td>
     <td><%= link_to 'Edit', edit_layer_path(layer) %></td>
     <td><%= link_to 'Destroy', layer, method: :delete, data: { confirm: 'Are you sure?' } %></td>
   </tr>
 <% end %>
+<tbody>
 </table>
+
+<hr>
+
+<h1>Multidimensional Data</h1>
+
+<%= link_to 'Upload CSV', data_upload_path %>
 
 <br />
 
-<%= link_to 'New Layer', new_layer_path %>
+<br />
