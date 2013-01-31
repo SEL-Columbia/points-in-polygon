@@ -5,8 +5,8 @@ class PermalinkController < ApplicationController
   # Accept the params from the layer or multi..data
   def self.generate_json(base_url, render_url, layer, tolerance, *args)
     return false unless layer
-    result, rows = *args
-    area_points = {}
+    result = args[0]
+    area_points = Hash.new { |h, k| h[k] = [] }
     points_count = {}
     row_indexes = {}
 
@@ -14,7 +14,14 @@ class PermalinkController < ApplicationController
     areas_unproject_rings = layer.areas.select(:unproject_exterior_ring).map(&:unproject_exterior_ring)
     layer.areas.each_with_index do |area, index|
       if tolerance
-        area_points[area.id] = (Area::RGEO_FACTORY.unproject area.simplified_polygon(tolerance).exterior_ring).points.map{|point| [point.y, point.x]}
+        simplied_geom = area.simplified_polygon(tolerance)
+        if simplied_geom.respond_to?(:exterior_ring)
+          area_points[area.id] = (Area::RGEO_FACTORY.unproject simplied_geom.exterior_ring).points.map{|point| [point.y, point.x]}
+        elsif simplied_geom.respond_to?(:each)
+          simplied_geom.each do |p|
+            area_points[area.id] << (Area::RGEO_FACTORY.unproject p.exterior_ring).points.map{|point| [point.y, point.x]}
+          end
+        end
       else
         if areas_unproject_rings[index].blank?
           # generate the unproject_exterior_ring when the area has no it
@@ -32,17 +39,20 @@ class PermalinkController < ApplicationController
 
     # get the view point
     view_point = area_points.values[0].flatten[0..1]
-    data_json = {:area_points => area_points, :view_point => view_point, :render_url => render_url, :layer_id => layer.id}
+    data_json = {:area_points => area_points, :view_point => [view_point[0], view_point[1]], :render_url => render_url, :layer_id => layer.id}
     if result
       points_counts_array = points_count.values.select{|c| c>0}
       data_json[:points_counts_array] = points_counts_array
       data_json[:points_count] = points_count
-      data_json[:row_indexes] = row_indexes
+      #data_json[:row_indexes] = row_indexes
+      data_json[:points_table_name] = result[:points_table_name]
+      data_json[:points_with_index] = result[:points_with_index]
+      data_json[:filters] = result[:filters]
     end
-    if rows
-      data_json[:rows] = rows
-    end
-    
+    #if rows
+    #  data_json[:rows] = rows
+    #end
+
     # write the json data to a json file as cache
     #data_json = data_json.to_json   # slow
     data_json = JSON.generate(data_json)

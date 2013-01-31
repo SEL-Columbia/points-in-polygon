@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+<title>Gemfile - RDoc Documentation</title>
+
+<link type="text/css" media="screen" href="./rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+</script>
+
+<script type="text/javascript" charset="utf-8" src="./js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/darkfish.js"></script>
+
+
+<body class="file">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="./index.html">Home</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
+
+
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
+
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
+
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="./#README_rdoc#.html">#README</a>
+  
+    <li class="file"><a href="./Gemfile.html">Gemfile</a>
+  
+    <li class="file"><a href="./README_rdoc.html">README</a>
+  
+    <li class="file"><a href="./Rakefile.html">Rakefile</a>
+  
+    <li class="file"><a href="./doc/README_FOR_APP.html">README_FOR_APP</a>
+  
+    <li class="file"><a href="./public/robots_txt.html">robots</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="./ActiveSupport.html">ActiveSupport</a>
+  
+    <li><a href="./ActiveSupport/TestCase.html">ActiveSupport::TestCase</a>
+  
+    <li><a href="./Pointsinarea.html">Pointsinarea</a>
+  
+    <li><a href="./Pointsinarea/Application.html">Pointsinarea::Application</a>
+  
+    <li><a href="./ApplicationController.html">ApplicationController</a>
+  
+    <li><a href="./ApplicationHelper.html">ApplicationHelper</a>
+  
+    <li><a href="./Area.html">Area</a>
+  
+    <li><a href="./BrowsingTest.html">BrowsingTest</a>
+  
+    <li><a href="./CreateAreas.html">CreateAreas</a>
+  
+    <li><a href="./CreateLayers.html">CreateLayers</a>
+  
+    <li><a href="./Layer.html">Layer</a>
+  
+    <li><a href="./LayerTest.html">LayerTest</a>
+  
+    <li><a href="./LayersController.html">LayersController</a>
+  
+    <li><a href="./MultidimensionalDataController.html">MultidimensionalDataController</a>
+  
+    <li><a href="./MultidimensionalDataControllerTest.html">MultidimensionalDataControllerTest</a>
+  
+    <li><a href="./MultidimensionalDataHelperTest.html">MultidimensionalDataHelperTest</a>
+  
+    <li><a href="./Object.html">Object</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation" class="description">
+  
+<p>source ‘<a href="https://rubygems.org">rubygems.org</a>’</p>
+
+<p>gem ‘rails’, ‘3.2.8’</p>
+
+<p># Bundle edge Rails instead: # gem ‘rails’, :git =&gt;
+‘git://github.com/rails/rails.git’</p>
+
+<p>gem ‘pg’</p>
+
+<p># Gems used only for assets and not required # in production environments
+by default. group :assets do</p>
+
+<pre class="ruby"><span class="ruby-identifier">gem</span> <span class="ruby-string">'sass-rails'</span>,   <span class="ruby-string">'~&gt; 3.2.3'</span>
+<span class="ruby-identifier">gem</span> <span class="ruby-string">'coffee-rails'</span>, <span class="ruby-string">'~&gt; 3.2.1'</span>
+
+<span class="ruby-comment"># See https://github.com/sstephenson/execjs#readme for more supported runtimes</span>
+<span class="ruby-comment"># gem 'therubyracer', :platforms =&gt; :ruby</span>
+
+<span class="ruby-identifier">gem</span> <span class="ruby-string">'uglifier'</span>, <span class="ruby-string">'&gt;= 1.0.3'</span>
+</pre>
+
+<p>end</p>
+
+<p>gem ‘jquery-rails’</p>
+
+<p># This is an ActiveRecord connection adapter for PostGIS. It is based on
+the stock PostgreSQL adapter, but provides built-in support for the spatial
+extensions provided by PostGIS. It uses the RGeo library to represent
+spatial data in Ruby. gem “activerecord-postgis-adapter”, “~&gt; 0.4.3”</p>
+
+<p># RGeo is a geospatial data library for Ruby # homepage: <a
+href="http://dazuma.github.com/rgeo/">dazuma.github.com/rgeo/</a> # source:
+<a href="https://github.com/dazuma/rgeo">github.com/dazuma/rgeo</a> # doc:
+<a
+href="http://dazuma.github.com/rgeo/rdoc/">dazuma.github.com/rgeo/rdoc/</a>
+gem “rgeo”, “~&gt; 0.3.19”</p>
+
+<p># ffi-geos is an implementation of the GEOS Ruby bindings in Ruby via FFI.
+# <a
+href="https://github.com/dark-panda/ffi-geos">github.com/dark-panda/ffi-geos</a>
+gem ‘ffi-geos’</p>
+
+<p># RGeo::GeoJSON is an optional RGeo module providing GeoJSON encoding and
+decoding services. This module can be used to communicate with
+location-based web services that understand the GeoJSON forma # homepage:
+<a
+href="http://dazuma.github.com/rgeo-geojson/">dazuma.github.com/rgeo-geojson/</a>
+# doc: <a
+href="http://dazuma.github.com/rgeo-geojson/rdoc/">dazuma.github.com/rgeo-geojson/rdoc/</a>
+# source: <a
+href="https://github.com/dazuma/rgeo-geojson">github.com/dazuma/rgeo-geojson</a>
+# <a href="http://www.geojson.org/">www.geojson.org/</a> gem
+“rgeo-geojson”, “~&gt; 0.2.3”</p>
+
+<p># RGeo::Shapefile is an optional module for RGeo for reading geospatial
+data from ESRI shapefiles. # homepage: <a
+href="http://dazuma.github.com/rgeo-shapefile/">dazuma.github.com/rgeo-shapefile/</a>
+# doc: <a
+href="http://dazuma.github.com/rgeo-shapefile/rdoc/">dazuma.github.com/rgeo-shapefile/rdoc/</a>
+# source: <a
+href="https://github.com/dazuma/rgeo-shapefile">github.com/dazuma/rgeo-shapefile</a>
+gem ‘rgeo-shapefile’, “~&gt; 0.2.3”</p>
+
+<p># This gem provides the leaflet.js map display library for your Rails 3
+application. # <a
+href="http://rubygems.org/gems/leaflet-rails">rubygems.org/gems/leaflet-rails</a>
+gem “leaflet-rails”, “~&gt; 0.4.5”</p>
+
+<p># rubyzip is a ruby library for reading and writing zip files # <a
+href="https://github.com/aussiegeek/rubyzip">github.com/aussiegeek/rubyzip</a>
+gem ‘rubyzip’, “~&gt; 0.9.9”</p>
+
+<p>group :development, :test do</p>
+
+<pre>gem &quot;quiet_assets&quot;, &quot;&gt;= 1.0.1&quot;
+gem &quot;pry-rails&quot;
+# Combine 'pry' with 'debugger'. Adds 'step', 'next', and 'continue' commands to control execution.
+# use &quot;binding.pry&quot; as &quot;debugger&quot;
+gem &quot;pry-debugger&quot;</pre>
+
+<p>end</p>
+
+</div>
+
+
+
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 3.12.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
+

@@ -1,0 +1,13 @@
+<table>
+  <% if(row.hasOwnProperty('picture')) { %>
+    <tr><td colspan="2"><img src="https://formhub.s3.amazonaws.com/ossapmdgs/attachments/<%= row['picture'].replace('.jpg', '-small.jpg') %>"></td></tr>
+  <% } %>
+  <% for(var k in row) { %>
+    <% if(row.hasOwnProperty(k) && k != 'point') { %>
+      <tr>
+        <td><%= k %></td>
+        <td><%= row[k] %></td>
+      </tr>
+    <% } %>
+  <% } %>
+</table>

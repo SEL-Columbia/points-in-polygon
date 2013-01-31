@@ -4,7 +4,7 @@ class LayersController < ApplicationController
   # GET /layers
   # GET /layers.json
   def index
-    @layers = Layer.all
+    @layers = Layer.order(:id)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -30,7 +30,7 @@ class LayersController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @result }
+      format.json { render json: {:layer => @layer, :data_json => @data_json, :permalink => @permalink} }
       format.topojson { render json: @layer.to_topojson }
     end
   end
@@ -49,6 +49,12 @@ class LayersController < ApplicationController
   # GET /layers/1/edit
   def edit
     @layer = Layer.find(params[:id])
+
+    respond_to do |format|
+      format.html
+      format.json { render json: {:name => @layer.name, :id => @layer.id} }
+    end
+
   end
 
   # POST /layers
@@ -58,8 +64,9 @@ class LayersController < ApplicationController
 
     respond_to do |format|
       if @layer and @layer.save
+        @layers = Layer.all
         format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
-        format.json { render json: @layer, status: :created, location: @layer }
+        format.json { render json: {layers: @layers.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
       else
         format.html { render action: "new" }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
@@ -74,8 +81,9 @@ class LayersController < ApplicationController
 
     respond_to do |format|
       if @layer.update_attributes(params[:layer])
+        @layers = Layer.all
         format.html { redirect_to @layer, notice: 'Layer was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render json: {layers: @layers.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
       else
         format.html { render action: "edit" }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
@@ -99,6 +107,47 @@ class LayersController < ApplicationController
   # /points/:id1,:lon1,:lat1;:id2,:lon2,:lat2
   def points
     # request.path => "/points/123,-74.006605,40.714623"
+    #query = request.path.split("/").last.split(";")
+    #points = query.inject([]) do |r, _|
+    #  id, lon, lat = _.split(",")
+    #  r << {:id => id, :lon => lon, :lat => lat}
+    #end
+    points = params[:points].split(';').map do |p|
+      id, lon, lat = p.split(',')
+      {:id => id, :lon => lon, :lat => lat}
+    end
+
+    tolerance = params[:tolerance].to_f if params[:tolerance].present?
+
+    areas = Area.polygon_contains_points(points, tolerance)
+    points_in_area = []
+    areas.each do |area|
+      points = area.filter_including_points(points)
+      area_as_json = {
+        :layer_id => area.layer_id,
+        :area_id  => area.id,
+        :points   => points,
+        :pointsWithinCount    => points.count
+      }
+      points_in_area << area_as_json
+    end
+
+    if params['idsonly'] && params['idsonly'] == 'true'
+      points_in_area.each { |p| p.delete(:points) }
+    end
+
+    result = {
+      :points_in_area => points_in_area
+    }
+
+    render :json => result
+  end
+
+  # FIXME: old api
+  # /points/:id,:lon,:lat
+  # /points/:id1,:lon1,:lat1;:id2,:lon2,:lat2
+  def points_query
+    # request.path => "/points/123,-74.006605,40.714623"
     query = request.path.split("/").last.split(";")
     points = query.inject([]) do |r, _|
       id, lon, lat = _.split(",")
@@ -108,7 +157,7 @@ class LayersController < ApplicationController
     tolerance = params[:tolerance].to_f if params[:tolerance].present?
 
     lon_lats = points.map{|point| [point[:lon], point[:lat]] }
-    areas = Area.polygon_contains_points(lon_lats, tolerance)
+    areas = Area.polygon_contains_points(points, tolerance)
     points_in_area = []
     areas.each do |area|
       points = area.filter_including_points(points)
@@ -136,8 +185,37 @@ class LayersController < ApplicationController
     render :json => result
   end
 
+  def points_in_layer_coord
+    points = params[:points_coord].split(';').map do |p|
+      id, lon, lat = p.split(',')
+      {:id => id, :lon => lon, :lat => lat}
+    end
 
+    points_in_area = Area.contains_points_in_layer_json(params[:id].to_i, points, @tolerance)
 
+    if params['idsonly'] && params['idsonly'] == 'true'
+      points_in_area.each { |p| p.delete(:points) }
+    end
+
+    result = {
+      :points_in_area => points_in_area
+    }
+
+    @layer = Layer.find(params[:id])
+    @result = result
+
+    base_url = "#{request.protocol}#{request.host_with_port}"
+    permalink_hash = PermalinkController.generate_json(base_url, 'layers/points_in_layer_coord', @layer, @tolerance, @result)
+    @permalink = permalink_hash[:url]
+    @data_json = permalink_hash[:data_json]
+
+    respond_to do |format|
+      format.html { render 'points_in_layer' }
+      format.json { render :json => {:layer => @layer, :data_json => @data_json, :permalink => @permalink} }
+    end
+  end
+
+  # FIXME: old api
   # /layers/:layer_id/points/:id,:lon,:lat
   # /layers/:layer_id/points/:id1,:lon1,:lat1;:id2,:lon2,:lat2
   # /layers/:layer_id/points/:id,:lon,:lat.json
@@ -161,11 +239,6 @@ class LayersController < ApplicationController
       :points_in_area => points_in_area
     }
 
-    # points_in_area = (
-    #   {id => id, layer_id => layer_id, area_id => area_id, points => ( {id => id, x =>x, y =>y}, {id => id, x =>x, y =>y}, ...)},
-    #   {id => id, layer_id => layer_id, area_id => area_id, points => ( {id => id, x =>x, y =>y}, {id => id, x =>x, y =>y}, ...)}
-    # )
-    # render :json => result
     @layer = Layer.find(params[:layer_id])
     @result = result
 
@@ -184,7 +257,6 @@ class LayersController < ApplicationController
 
   # Ajax query to get count in the areas of the layer based on some points
   def points_count_in_layer
-    start_time = Time.now
     result = {:points_in_area => [], :points_count_arr => [], :areas_id => [], :count_id_hash => {}}
     if(params[:points].blank?)
       render :json => result.to_json if params[:points].blank?
@@ -201,27 +273,38 @@ class LayersController < ApplicationController
 
       render :json => JSON.generate(result)
     end
-    end_time = Time.now
-    elapsed_time = (end_time.to_f * 1000.0).to_i - (start_time.to_f * 1000.0).to_i
-    p elapsed_time
-
   end
 
   def upload_topojson
     upload = params[:layer][:upload]
+    # The comparing method should be improved
+    if upload.class != ActionDispatch::Http::UploadedFile
+      if upload[:tempfile].class == ActionDispatch::Http::UploadedFile
+        upload = upload[:tempfile]
+      else
+        return true
+      end
+    end
     created = Layer.create_from_topojson(upload) if upload
-    redirect_to layers_path, notice: "#{created.size} layers created"
+    respond_to do |format|
+      format.html { redirect_to layers_path, notice: "#{created.size} layers created" }
+      @layers = Layer.all
+      format.json { render json: {layers: @layers.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
+    end
+
   end
 
   def upload_shapefile
      @layers = Layer.upload_shapefile(params[:layer])
-     
+
     respond_to do |format|
       if @layers and @layers.map(&:save).all?
-        @layers[1..-1].each_with_index { |l, i| 
-          l.update_attributes({:parent_id => @layers[i].id}) 
+        @layers[1..-1].each_with_index { |l, i|
+          l.update_attributes({:parent_id => @layers[i].id})
         }
         format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
+        @layers = Layer.all
+        format.json { render json: {layers: @layers.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
       else
         format.html { render action: "new", notice: 'Shapefile uploading ERROR!' }
       end

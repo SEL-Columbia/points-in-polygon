@@ -1,6 +1,17 @@
 == Prerequirement
   You have postgis installed and configured.
 
+  You have topojson installed:
+    1) install node.js and npm (http://nodejs.org/)
+
+    2)
+      uninstall if have old one installed: `npm uninstall topojson -g`
+      `git clone git://github.com/rainchen/topojson.git`
+      `git checkout -b add_geojson_bin origin/add_geojson_bin`
+      `cd topojson`
+      `npm install . -g`
+
+
 == Setup
 1) install gems:
   bundle install

@@ -5,31 +5,37 @@
 <div id="map"></div>
 <script type="text/javascript">
 $(document).ready(function(){
-  // var map = L.map('map').setView([51.505, -0.09], 13);
-  // New York
-  // var map = L.map('map').setView([40.713955826286046, -73.99703979492188], 13);
-  // Denver, State view
-  //var map = L.map('map').setView([39.7392, -104.9842], 5);
-  var data_json = <%= raw @data_json %>
-  var viewPoint = data_json['view_point'];
-  var map = L.map('map').setView(viewPoint, 11);
+  var dataJson = <%= raw @data_json %>
+  var viewPoint = dataJson['view_point'];
+  // params: id, center, zoom
+  app.map.createLMap('map', viewPoint, 11);
 
-  pointsCounts = data_json['points_counts_array'];
+  pointsCountOfAreas = dataJson['points_counts_array'];
 
-  var colorGroup = getColorGroup(pointsCounts);
+  // grades of count based on counts of areas, [[1, 1], [3, 14], [17, 31] ...]
+  var grades = app.style.getColorGrade(pointsCountOfAreas);
 
-  var areasLayer = new L.LayerGroup();
-  var area_points = data_json['area_points'];
-  var points_count = data_json['points_count']
-  for(k in area_points) {
-    if(area_points.hasOwnProperty(k)) {
-      var points = area_points[k];
-      var pointsCount = points_count[k];
-      addArea(areasLayer, points, pointsCount, colorGroup);
+  var areaSet = new app.AreaSet;
+  areaSet.lLayerGroup = new L.LayerGroup();
+  var borderAreas = dataJson['area_points'];
+  var countOfAreas = dataJson['points_count'];
+
+  for(k in borderAreas) {
+    if(borderAreas.hasOwnProperty(k)) {
+      var border = borderAreas[k];
+      var count = countOfAreas[k];
+      var area = new app.Area({border: border, count: count}, {grades: grades});
+      areaSet.add(area);
+      area.get('lArea').addTo(areaSet.lLayerGroup);
     }
   }
 
-  init(map, colorGroup, {"baseLayers":{}, "overLayers": {"Polygon Layer": areasLayer} });
+  app.layer = new app.Layer;
+  app.layer.init(app.map.get('lMap'), grades, {"baseLayers":{}, "overlayLayers": {"Polygon Layer": areaSet.lLayerGroup} });
+
+  app.legend = new app.Legend({grades: grades, style: app.style});
+  app.legendView = new app.LegendView({model: app.legend, map: app.map.get('lMap')});
+  app.legendView.render();
 });
 
 </script>

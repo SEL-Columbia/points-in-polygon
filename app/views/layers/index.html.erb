@@ -36,7 +36,7 @@
       <% end %>
     </td>
     <td><%= link_to 'Show', layer %>(<%= link_to 'json', layer_path(layer, :format => :json) %>)</td>
-    <td><%= link_to 'Query', '#', :class => 'query-layer', 'data-layer-id' => layer.id %>(<%= link_to 'json', '#', :class => 'query-layer', :data => { 'layer-id' => layer.id, :format => 'json' } %>)</td>
+    <td><%= link_to 'Query', '#', :class => 'query-layer', 'data-layer-id' => layer.id %>(<%= link_to 'json', '#', :class => 'query-layer', :data => { 'layer-id' => layer.id, :format => '.json' } %>)</td>
     <td><%= link_to 'Edit', edit_layer_path(layer) %></td>
     <td><%= link_to 'Destroy', layer, method: :delete, data: { confirm: 'Are you sure?' } %></td>
   </tr>

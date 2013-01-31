@@ -1,12 +1,14 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.8'
+gem 'rails', '3.2.11'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 gem 'pg'
 
+#Gem for autogenerating API docs
+gem 'api_taster'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -18,6 +20,9 @@ group :assets do
   # gem 'therubyracer', :platforms => :ruby
 
   gem 'uglifier', '>= 1.0.3'
+
+  # Compile and evaluate EJS (Embedded JavaScript) templates from Ruby
+  gem 'ejs', "~> 1.1.1"
 end
 
 gem 'jquery-rails'
@@ -31,6 +36,10 @@ gem "activerecord-postgis-adapter", "~> 0.4.3"
 # doc: http://dazuma.github.com/rgeo/rdoc/
 gem "rgeo", "~> 0.3.19"
 
+# ffi-geos is an implementation of the GEOS Ruby bindings in Ruby via FFI.
+# https://github.com/dark-panda/ffi-geos
+gem 'ffi-geos'
+
 # RGeo::GeoJSON is an optional RGeo module providing GeoJSON encoding and decoding services. This module can be used to communicate with location-based web services that understand the GeoJSON forma
 # homepage: http://dazuma.github.com/rgeo-geojson/
 # doc: http://dazuma.github.com/rgeo-geojson/rdoc/
@@ -38,9 +47,23 @@ gem "rgeo", "~> 0.3.19"
 # http://www.geojson.org/
 gem "rgeo-geojson", "~> 0.2.3"
 
+# RGeo::Shapefile is an optional module for RGeo for reading geospatial data from ESRI shapefiles.
+# homepage: http://dazuma.github.com/rgeo-shapefile/
+# doc: http://dazuma.github.com/rgeo-shapefile/rdoc/
+# source: https://github.com/dazuma/rgeo-shapefile
+gem 'rgeo-shapefile', "~> 0.2.3"
+
 # This gem provides the leaflet.js map display library for your Rails 3 application.
 # http://rubygems.org/gems/leaflet-rails
-gem "leaflet-rails", "~> 0.4.5"
+#gem "leaflet-rails", "~> 0.4.5"
+
+# rubyzip is a ruby library for reading and writing zip files
+# https://github.com/aussiegeek/rubyzip
+gem 'rubyzip', "~> 0.9.9"
+
+# This is a implementation of the JSON. It's faster than the pure ruby variant and is easy to use.
+# https://github.com/flori/json
+gem "json", "~> 1.7.6"
 
 group :development, :test do
   gem "quiet_assets", ">= 1.0.1"
@@ -48,4 +71,10 @@ group :development, :test do
   # Combine 'pry' with 'debugger'. Adds 'step', 'next', and 'continue' commands to control execution.
   # use "binding.pry" as "debugger"
   gem "pry-debugger"
+
+  # A thin and fast web server
+  gem "thin", "~> 1.5.0"
+
+  # Profiling toolkit for Rack applications with Rails integration. Client Side profiling, DB profiling and Server profiling.
+  gem "rack-mini-profiler", "~> 0.1.23"
 end

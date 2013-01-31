@@ -36,7 +36,7 @@ $(document).ready(function(){
     inLoading = true;
     map.fitBounds(e.target.getBounds());
     levelInfo['area_id'] = e.target.areaId;
-     
+
     drawLevel(levelInfo);
   }
 
@@ -57,25 +57,25 @@ $(document).ready(function(){
     return polyTile;
   }
 
-  $('ul.breadcrumb li a').live('click', function(){
+  //$('ul.breadcrumb li a').live('click', function(){
 
-    if (inLoading) {
-      return;
-    }
-    inLoading = true;
-    $(this).parent().nextAll().remove();
-    var level = $(this).parent().data('level');
-    $(this).parent().remove();
+  //  if (inLoading) {
+  //    return;
+  //  }
+  //  inLoading = true;
+  //  $(this).parent().nextAll().remove();
+  //  var level = $(this).parent().data('level');
+  //  $(this).parent().remove();
 
-    var newLevelInfo = levelBread[level - 1];
-    levelInfo = newLevelInfo;
+  //  var newLevelInfo = levelBread[level - 1];
+  //  levelInfo = newLevelInfo;
 
-    //var spinner = addSpin();
-    drawLevel(newLevelInfo);
-    //spinner.stop();
+  //  //var spinner = addSpin();
+  //  drawLevel(newLevelInfo);
+  //  //spinner.stop();
 
-    map.fitBounds(areaTiles[levelInfo['area_id']].getBounds());
-  });
+  //  map.fitBounds(areaTiles[levelInfo['area_id']].getBounds());
+  //});
 
   // points: [row_index1, row_index2]
   function addPoints(points) {
@@ -162,7 +162,7 @@ $(document).ready(function(){
           for(var i in colsLayer) {
             colsLayer[i].removeLayer(pointsOnMap[k]['point'][i]);
           }
-          oldPoints.push(pointsOnMap[k]);         
+          oldPoints.push(pointsOnMap[k]);
         }
       }
       for(var k in oldPoints) {
@@ -182,7 +182,7 @@ $(document).ready(function(){
 
     levelBread[levelInfo['level']] = levelInfo;
 
-    $.post('/multilevel/expand', {layer_id: levelInfo['layer_id'], area_id: levelInfo['area_id'], level: levelInfo['level']}, 
+    $.post('/multilevel/expand', {layer_id: levelInfo['layer_id'], area_id: levelInfo['area_id'], level: levelInfo['level']},
       function(data) {
         var oldAreaId = data['old_area_id'];
         var children = data['children'];
@@ -190,7 +190,7 @@ $(document).ready(function(){
         var points = data['points'];
         var allPoints = data['all_points_existed'];
         if(points && points.length > 0) {
-   
+
           levelInfo['clicked_areas'].push(levelInfo['area_id']);
           tmpClickedAreas = levelInfo['clicked_areas'];
 
@@ -263,7 +263,7 @@ $(document).ready(function(){
               colsLayer[k]._map = null;
             }
           }
-          
+
           if(pointsLayer) {
             pointsLayer._map = map;
             pointsLayer.eachLayer(map.addLayer, map);
@@ -272,7 +272,7 @@ $(document).ready(function(){
         inLoading = false;
       }
     );
-    
+
   }
   function updateAllControls(selected) {
     if(selected) {
@@ -285,7 +285,7 @@ $(document).ready(function(){
       bindSelectAll(selected);
       bindAttrLiClick(selected);
     }
-    
+
     makeUpdateLegend(selected);
   }
   makeUpdateLegend = function(selected){

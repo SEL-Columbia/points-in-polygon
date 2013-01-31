@@ -1,9 +1,9 @@
-<% if controller_name == 'multilevel_shapefiles' %>
+<% if controller_name != 'permalink' %>
 <%= link_to 'Back', layers_path %> |
 <%= link_to  @permalink, @permalink %>
 <% end %>
 <ul class="breadcrumb">
-  <li class="active" data-level='0'>Level 0</li>
+  <!--<li class="active" data-level='0'>Level 0</li> -->
 </ul>
 
 
@@ -13,93 +13,119 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
-  var data_json = <%= raw @data_json %>;
-  var rows = data_json['rows'][1];
-  window.rows = rows;
-  var layer_id = data_json['layer_id'];
-  window.layer_id = layer_id;
 
-  var lat_str = data_json['rows'][0].at(-2);
-  var lon_str = data_json['rows'][0].at(-1);
-  window.lat_str = lat_str;
-  window.lon_str = lon_str;
-  
-  var viewPoint = data_json['view_point'];
+  app.loading = new app.Loading();
 
-  var map = L.map('map').setView(viewPoint, 5);
-  window.map = map;
+  var dataJson = <%= raw @data_json %>;
 
-  var pointsCounts = data_json['points_counts_array'];
-  var colorGroup = getColorGroup(pointsCounts);
+  //var rows = dataJson['rows'][1];
 
-  // Areas Layer
-  var areaTiles = {};
-  window.areaTiles = areaTiles;
+  var pointsTableName = dataJson['points_table_name'];
 
-  var areasLayer = new L.LayerGroup();
-  window.areasLayer = areasLayer;
-  var area_points = data_json['area_points'];
-  var keys = [];
+  //var latStr = dataJson['rows'][0].at(-2);
+  //var lonStr = dataJson['rows'][0].at(-1);
 
-  for(var k in area_points) {
-    if(area_points.hasOwnProperty(k)) {
-      keys.push(k);
-      var points = area_points[k];
-      var pointsCount = data_json['points_count'][k];
-      areaTiles[k] = addLevelArea(areasLayer, points, pointsCount, colorGroup);
-      areaTiles[k].areaId = k;
+  var viewPoint = dataJson['view_point'];
+
+  var pointsCountOfAreas = dataJson['points_counts_array'];
+
+  var borderAreas = dataJson['area_points'];
+  var countOfAreas = dataJson['points_count'];
+
+  //var colNames = dataJson['rows'][0].to(-2);
+  var filters = dataJson['filters'];
+
+  var pointsWithIndex = dataJson['points_with_index'];
+
+  // map
+  app.map.createLMap('map', viewPoint, 5);
+
+  // color grades based on counts of areas
+  var grades = app.style.getColorGrade(pointsCountOfAreas);
+
+  var breadcrumb = new app.Breadcrumb;
+  var areaSet = new app.AreaSet;
+  var pointSet = new app.PointSet;
+  var legend = new app.Legend({grades: grades, style: app.style, areaSet: areaSet, percent: false, showWay: 'magnitude'});
+  // legend
+  var legendView = new app.LegendView({model: legend, map: app.map.get('lMap')});
+
+  // Filter Panel
+  filterPanel = new app.FilterPanel({col: 'None', attrAndCounts: [], pointSet: pointSet, areaSet: areaSet, pointsTableName: pointsTableName});
+  filterPanelView = new app.FilterPanelView({model: filterPanel, map: app.map.get('lMap')});
+  filterPanel.set('view', filterPanelView);
+
+
+  // Breadcrumb
+  breadcrumb.areaSet = areaSet;
+  breadcrumb.pointSet = pointSet;
+  breadcrumb.filterPanelView = filterPanelView;
+
+  // Areas Set
+  areaSet.lLayerGroup = new L.LayerGroup();
+  areaSet.layerId = dataJson['layer_id'];
+  areaSet.pointsTableName = pointsTableName;
+  areaSet.breadcrumb = breadcrumb;
+  areaSet.pointSet = pointSet;
+  areaSet.legend = legend;
+  areaSet.filterPanelView = filterPanelView;
+  areaSet.listenTo(legendView, 'showWayChange', areaSet.legendShowChange);
+
+  //create each area and add to the set.
+  for(var k in borderAreas) {
+    if(borderAreas.hasOwnProperty(k)) {
+      var border = borderAreas[k];
+      var count = countOfAreas[k];
+      var area = new app.Area({border: border, count: count, totalCount: count, areaId: parseInt(k, 10), pointSet: pointSet, areaSet: areaSet, clicked: false, canShowPoints: false, canExpandChild: true, showWay: 'magnitude'}, {grades: grades});
+      areaSet.add(area);
+      area.get('lArea').addTo(areaSet.lLayerGroup);
     }
   }
 
-  // Points Layer
-  var pointsLayer = new L.FeatureGroup();
-  window.pointsLayer = pointsLayer;
+  // Points Set
+  //pointSet.pointsTable = rows;
+  pointSet.colNames = filters;
+  pointSet.lLayerGroup = new L.FeatureGroup();
+  pointSet.pointsTableName = pointsTableName;
 
-  var allPointsExisted = [];
-  window.allPointsExisted = allPointsExisted;
+  //allAttrs = {};
 
-  var pointsOnMap = [];
-  window.pointsOnMap = pointsOnMap;
-
-  var pointsSelected = [];
-  window.pointsSelected = pointsSelected;
-
-  var levelInfo = {'level': 0, 'layer_id': layer_id, 'area_id': parseInt(keys[0]), 'clicked_areas': []}
-  window.levelInfo = levelInfo;
-  levelBread[-1] = {'level': -1, 'layer_id': layer_id, 'area_id': parseInt(keys[0])};
-
-  // Cols control
-  var colColors = {};
-  window.colColors = colColors;
-  var cols = data_json['rows'][0].to(-2);
-  var colsLayer = {};
-  window.colsLayer = colsLayer;
-  for(var i=0;i < cols.length;i++) {
-    colsLayer[cols[i]] = new L.FeatureGroup();
-    colsLayer[cols[i]].colName = cols[i];
-    colsLayer[cols[i]].onAdd = selectAttr;
-  }
-  var prettyColors = ["#DE1841", "#5DD517", "#1680CA", "#6016CA", "#FF1CF6", "#FF8B1C", "#EBFF1C", "#1CA4FF", "#F44747", "#9BDC00", "#E747C5", "#1C1841", "#462E46", "#61605B"];
-  window.prettyColors = prettyColors;
-
-  for(var k in colsLayer) {
-    // attribute values of the col
-    var attrs = [];
-    $(rows).each(function(index){
-      attrs.push(rows[index][k]);
-    });
-    attrs = attrs.unique();
-    // {ATTR_VALUE: randomColor, ...}
-    var attrColors = {};
-    $(attrs).each(function(index){
-      //color = '#'+(function(h){return new Array(7-h.length).join("0")+h})((Math.random()*0x1000000<<0).toString(16));
-      color = prettyColors[index % prettyColors.length];
-      attrColors[attrs[index]] = color;
-      });
-    // {Cols_Name: attrColors}
-    colColors[k] = attrColors;
+  // create point and addTo point set
+  for(var i=0;i < pointsWithIndex.length;i++) {
+    var lat = pointsWithIndex[i]['lat'];
+    var lon = pointsWithIndex[i]['lon'];
+    //if(lat.match(/\d+\.\d+/) && lon.match(/\d+\.\d+/)) {
+      var colValues = {}
+      //_.each(colNames, function(col) {
+      //  colValues[col] = rows[i][col];
+      //  allAttrs[col] = allAttrs[col] || [];
+      //  allAttrs[col].push(rows[i][col]);
+      //});
+      var point = new app.Point({lat: lat, lon: lon, pointSet: pointSet, colValues: colValues, isOnMap: false, isExisted: false, isSelected: false, tableIndex: pointsWithIndex[i]['index'], tableName: pointsTableName}, {});
+      pointSet.add(point);
+      //point.addTo(pointSet.lLayerGroup);
+    //}
   }
 
-  init(map, colorGroup, {"baseLayers": colsLayer, "overLayers": {"Polygon Layer": areasLayer, "Points Layer": pointsLayer}});
+  // generate colors for all attributes of points
+  pointSet.generateAttrColors();//allAttrs);
+
+  // each colsFeatureGroup has no points in the leaflet layer
+  // but when it is switched, the points will change the styles
+  var colsFeatureGroup = {};
+  _.each(_.union(['None'], filters), function(col){
+    var colLayer = new app.Layer({name: col, lLayer: new L.FeatureGroup, pointSet: pointSet, filterPanelView: filterPanelView, filterPanel: filterPanel});
+    colsFeatureGroup[col] = colLayer.get('lLayer');
+    colLayer.bindOnAdd();
+  });
+
+  breadcrumb.colsFeatureGroup = colsFeatureGroup;
+
+  // whole layer
+  var layer = new app.Layer;
+  layer.init(app.map.get('lMap'), grades, {"baseLayers": colsFeatureGroup, "overlayLayers": {"Polygon Layer": areaSet.lLayerGroup, "Points Layer": pointSet.lLayerGroup}});
+
+  legendView.render();
+
 });
 </script>

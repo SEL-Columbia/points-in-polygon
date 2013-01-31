@@ -11,21 +11,13 @@ class Area < ActiveRecord::Base
 
   EWKB = RGeo::WKRep::WKBGenerator.new(:type_format => :ewkb, :emit_ewkb_srid => true, :hex_format => true)
 
-  # FIXME: unused method!
-  # polygon_contains_point([-74.006605, 40.714623])
-  scope :polygon_contains_point, lambda { |lon_lat|
-    lon, lat = lon_lat
-    ewkb = EWKB.generate(RGEO_FACTORY.point(lon, lat).projection)
-    where("ST_Intersects(polygon, ST_GeomFromEWKB(E'\\\\x#{ewkb}'))")
-  }
-
   # polygon_contains_points([[-74.006605, 40.714623], ...])
   scope :polygon_contains_points, lambda { |lon_lats, tolerance = nil|
     conditions = []
     polygon_sql = tolerance ? "ST_simplify(polygon, #{tolerance})" : "polygon"
 
     lon_lats.each do |lon_lat|
-      lon, lat = lon_lat
+      lon, lat = lon_lat[:lon], lon_lat[:lat]
       ewkb = EWKB.generate(RGEO_FACTORY.point(lon, lat).projection)
       conditions << "ST_Intersects(#{polygon_sql}, ST_GeomFromEWKB(E'\\\\x#{ewkb}'))"
     end
@@ -60,7 +52,7 @@ class Area < ActiveRecord::Base
         :layer_id => area.layer_id,
         :area_id  => area.id,
         :points   => points,
-        :pointsWithinCount    => points.count
+        :pointsWithinCount => points.count
       }
       points_in_area << area_as_json
     end
@@ -85,14 +77,8 @@ class Area < ActiveRecord::Base
   #   :pointsWithinCount=>1},
   #  {:layer_id=>18, :area_id=>568, :points=>[], :pointsWithinCount=>0}]}
   def get_points_count(result)
-    # debugger
     area_in_result = result[:points_in_area].find{ |a| a[:area_id] == self.id }
     area_in_result ? area_in_result[:pointsWithinCount] : 0
-  end
-
-  def get_marker_point(result)
-    area_in_result = result[:points_in_area].find { |a| a[:area_id] == self.id }
-    area_in_result ? area_in_result[:marker_point] : [0, 0]
   end
 
   def get_row_indexes(result)
@@ -103,11 +89,11 @@ class Area < ActiveRecord::Base
   # Return simplified polygon
   def simplified_polygon(tolerance)
     if tolerance
-      geos_poly = polygon.fg_geom
+      geos_poly = polygon ? polygon.fg_geom : multipolygon.fg_geom
       simplified_geos_poly = geos_poly.simplify(tolerance)
       Area::RGEO_FACTORY.projection_factory.wrap_fg_geom(simplified_geos_poly)
     else
-      polygon
+      polygon ? polygon.fg_geom : multipolygon.fg_geom
     end
   end
 

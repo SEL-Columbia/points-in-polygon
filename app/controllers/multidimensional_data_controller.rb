@@ -7,53 +7,61 @@ class MultidimensionalDataController < ApplicationController
       flash[:warning] ||= "The longitude or latitude can't be found automatically, please choose them by hand and upload again"
     end
     @layers = Layer.order("name")
+    options_multidata = @layers.map { |l| [l.name, l.id] }
+    options_multilevel = @layers.select {|l| l.parent.blank? and ! l.child.blank?}.map { |l| [l.name, l.id] }
+
+    respond_to do |format|
+      format.html
+      format.json { render :json => {:options_multidata => options_multidata, :options_multilevel => options_multilevel} }
+    end
   end
 
   def show
     unless params[:csv_file]
       flash[:warning] = "Please choose your csv file"
       redirect_to request.env['HTTP_REFERER']
-    else
-      # get the header and the body as hash
-      @layer = Layer.find(params[:layer_id])
-      csv_data = CSV.read(params[:csv_file].path)
-      header = csv_data[0]
-      body = csv_data[1..-1].map do |row|
-        Hash[header.zip(row)]
-      end
-
-      # find the lat and lon
-      lat = header.select{|h| h and h.match 'lat'}
-      lon = header.select{|h| h and h.match 'lon'}
-      lon = [params[:lon]] if params[:lon]
-      lat = [params[:lat]] if params[:lat]
-      if(lat.length != 1 or lon.length != 1)
-        redirect_to data_upload_path(:header => header)
+      return
+    end
+    csv_file = params[:csv_file]
+    if !params[:csv_file].respond_to?(:path)
+      if params[:csv_file][:tempfile].respond_to?(:path)
+        csv_file = params[:csv_file][:tempfile]
       else
-        # find the rows which are suitable for attributes selection
-        lat, lon = lat[0], lon[0]
-        unique = Hash.new({})
-        header.each_with_index do |col, index|
-          unique[col] = Hash.new(0)
-          body.each {|item| unique[col][item[col]] += 1}
-        end
-        header = header.select{|col| unique[col].length < Math.sqrt(body.length)}
-        header.push(lat).push(lon)
-        @csv_rows = [header].push(body)
-
-        # get the points_in_area ([{:layer_id, :area_id, :points, :pointCount, :row_indexes}])
-        points_in_area = Point.csv_to_temp_points(body, lat, lon, params[:layer_id])[:points_in_area]
-
-        @result = {:points_in_area => points_in_area}
-
-        # generate permalink the the json data
-        base_url = "#{request.protocol}#{request.host_with_port}"
-        permalink_hash = PermalinkController.generate_json(base_url, 'multidimensional_data/show', @layer, @tolerance, @result, @csv_rows)
-        @permalink = permalink_hash[:url]
-        @data_json = permalink_hash[:data_json]
-
-        render 'show'
+        return true
       end
+    end
+    # get the header and the body as hash
+    @layer = Layer.find(params[:layer_id])
+    csv_handler = CsvHandler.new csv_file.path
+
+    # find the lat and lon
+    lat, lon = * csv_handler.get_xy_str(params[:lon], params[:lat])
+    if(lat.length != 1 or lon.length != 1)
+      redirect_to data_upload_path(:header => csv_handler.header)
+      return
+    end
+    # find the rows which are suitable for attributes selection
+    csv_handler.find_filters
+
+    layer_id = (params[:multilevel] and !@layer.child.blank?) ? @layer.child.id : params[:layer_id]
+    # get the points_in_area ([{:layer_id, :area_id, :points, :pointCount, :row_indexes}])
+    query_result = Point.csv_to_temp_points(csv_handler, layer_id)
+
+    points_with_index = csv_handler.points_with_index
+
+    @result = {:points_in_area => query_result[:points_in_area], :points_table_name => query_result[:table_name], :points_with_index => points_with_index, :filters => csv_handler.filters}
+
+    request_path = params[:multilevel] ? 'multilevel_shapefiles/show' : 'multidimensional_data/show'
+
+    # generate permalink the the json data
+    base_url = "#{request.protocol}#{request.host_with_port}"
+    permalink_hash = PermalinkController.generate_json(base_url, request_path, @layer, @tolerance, @result)
+    @permalink = permalink_hash[:url]
+    @data_json = permalink_hash[:data_json]
+
+    respond_to do |format|
+      format.html { render :template => request_path }
+      format.json { render :json => {:data_json => @data_json, :permalink => @permalink} }
     end
   end
 

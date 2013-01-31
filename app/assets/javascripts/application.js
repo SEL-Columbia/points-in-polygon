@@ -12,10 +12,13 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require underscore-min
+//= require backbone-min
 //= require leaflet
 //= require sugar-1.3.7.min
 //= require leaflet.markercluster
 //= require spin.min
+//= require_tree ./templates
 //= require_tree .
 $(document).ready(function() {
   $("a.query-layer").click(function(){

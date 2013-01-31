@@ -47,13 +47,18 @@ class Layer < ActiveRecord::Base
   end
 
   def geo_file=(upload_file)
-    @geo_file = upload_file
-    if @geo_file.original_filename.match('json')
-      # convert geojson file to polygons data
-      geojson_file_to_areas(@geo_file.read)
-      # convert geojson file to topojson file
-      geojson_file_to_topojson_file(@geo_file)
+    # The comparing method should be improved
+    if upload_file.class == ActionDispatch::Http::UploadedFile || upload_file.class == File
+      @geo_file = upload_file
+    elsif upload_file[:tempfile].class == ActionDispatch::Http::UploadedFile
+      @geo_file = upload_file[:tempfile]
+    else
+      return true
     end
+    # convert geojson file to polygons data
+    geojson_file_to_areas(@geo_file.read)
+    # convert geojson file to topojson file
+    geojson_file_to_topojson_file(@geo_file)
   end
 
   def self.upload_shapefile(params)
@@ -61,7 +66,15 @@ class Layer < ActiveRecord::Base
     base_path = "tmp/shapefiles/#{random_dir}"
     layers = []
 
-    Zip::ZipFile.open(params[:geo_file].path) do |zipfile|
+    if params[:geo_file].class == ActionDispatch::Http::UploadedFile
+      @shapefile = params[:geo_file]
+    elsif params[:geo_file][:tempfile].class == ActionDispatch::Http::UploadedFile
+      @shapefile = params[:geo_file][:tempfile]
+    else
+      return true
+    end
+
+    Zip::ZipFile.open(@shapefile.path) do |zipfile|
       # Extract all the file to tmp/shapefiles
       zipfile.each do |entry|
         file_path = File.join(base_path, entry.name)
@@ -69,9 +82,10 @@ class Layer < ActiveRecord::Base
         zipfile.extract(entry, file_path) unless File.exist?(file_path)
       end
 
+      has_csv = false;
       level = 0
       id_tree = {}
-      
+
       # Handle the shapefiles
       zipfile.each do |entry|
         file_path = File.join(base_path, entry.name)
@@ -85,11 +99,14 @@ class Layer < ActiveRecord::Base
           array_of_hashes = data.map {|row| Hash[*header.zip(row).flatten] }
           id_tree[level] = array_of_hashes.map {|i| { :level_id => i["ID_#{level}"].to_i, :parent_id => i["ID_#{level-1}"].to_i}}
           level += 1
+          has_csv = true;
         end
       end
-      id_tree.each_pair do |k, v|
-        layers[k].areas.each_with_index do |a, i|
-          a.update_attributes({:parent_id => v[i][:parent_id], :level_id => v[i][:level_id]})
+      if has_csv
+        id_tree.each_pair do |k, v|
+          layers[k].areas.each_with_index do |a, i|
+            a.update_attributes({:parent_id => v[i][:parent_id], :level_id => v[i][:level_id]})
+          end
         end
       end
     end
@@ -104,7 +121,6 @@ class Layer < ActiveRecord::Base
     RGeo::Shapefile::Reader.open(@geo_file, :factory => geo_factory, :srid => 3785) do |file|
       file.each do |record|
         build_areas record.geometry
-        #puts "Record number #{record.index}:"
       end
       file.rewind
       record = file.next
@@ -127,6 +143,7 @@ class Layer < ActiveRecord::Base
   end
 
   def build_areas(geo_entry)
+    areas.delete_all
     case geo_entry
     when RGeo::Geographic::ProjectedMultiPolygonImpl
       areas.build :multipolygon => geo_entry.projection
