@@ -1,6 +1,6 @@
 class MultilevelShapefilesController < ApplicationController
   before_filter :set_tolerance, :only => [:show]
-
+protect_from_forgery :except => [:show, :upload]
   def show
     unless params[:csv_file]
       flash[:warning] = "Please choose your csv file"

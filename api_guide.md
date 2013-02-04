@@ -1,4 +1,10 @@
-# API Guide
+# Points In Polygon API Guide
+-------
+## Description 
+-------
+ 
+ Points in Polygon is a simple API implementation that allows for building dynamic administrative boundary layer Choropleth maps. Built on the PotGIS Geospacial database, the API provides several simple endpoints that are optimized for processing large data sets and returning data structures suitable for creation of Choropleths. The API allows users to perform several common operations that together make Choropleths a snap to build.
+ 
 -------
 ## Layer API
 ### Create a layer
@@ -10,6 +16,7 @@
 		* layer[name]: optional
 		* layer[geo_file]: required
 	* return: layers created in json
+	IE: curl -X POST  --form "layer[geo_file]=@/Users/tom/points-in-polygon/public/geojson_sample/210609.geojson" http://208.82.98.98/layers.json
 2. Shapefile
 	Post the Shapefile file to the endpoint
 	* endpoint: /layers/upload_shapefile.json
@@ -27,7 +34,7 @@
 		* layer[upload]: required
 	* return: layers created in json
 
-### Get layer
+### Get a layer
 1. Get all layers
 	Get all layers information in json format
 	* endpoint: /layers.json
@@ -61,7 +68,7 @@
 -------
 # Point Query API
 
-## Query point
+## Query a point
 1. Query a point
 	* endpoint: /points/:id,:lon,:lat
 	* method: GET
@@ -72,7 +79,7 @@
 	* return: {"points_in_area": [{"layer_id" => layer_id, "area_id" => area_id, "points" => [{"id" => id, "lon" => lon, "lat" => lat}], "pointsWithinCount": 1}, ..]}
 
 
-## Query point against layer
+## Query a point against layer
 1. Query a point
 	* endpoint: /layers/:layer_id/points/:id,:lon,:lat.json
 	* method: GET
@@ -91,18 +98,20 @@
 	* layer_id
 	* csv_file(file to be uploaded)
 * return:
-	* data_json
+	* geojson polygon data including tablename of temp table
 	* permalink
+	IE: curl -X POST --referer http://google.com  --form "csv_file=@/Users/tom/poof/public/csv_sample/DRGsubset.csv" --form "layer_id=63" http://localhost:3000/data/show.json
 
 #Multi-level query(CSV file) API
 * endpoint: /multilevel/show.json
-* method: post
+* method: POST
 * params:
   * layer_id(The layer is the first level layer)
-  * csv_file(file to be uplaoded)
+  * csv_file(file to be uploaded)
 * return:
-  * data_json
+  * geojson polygon data including tablename of temp table
   * permalink
+  IE: curl -X POST --referer http://google.com  --form "csv_file=@/Users/tom/poof/public/csv_sample/DRGsubset.csv" --form "layer_id=63" http://localhost:3000/data/show.json
 
 -------
 

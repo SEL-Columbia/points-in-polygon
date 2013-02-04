@@ -142,6 +142,11 @@ class ApiController < ApplicationController
     col_name = params[:col_name]
     table_name = params[:table_name]
 
+    if row_indexes.blank?
+      render :json => {:count_of_attrs => {}, :attrs_of_points => {}}
+      return
+    end
+
     count_of_attrs = Hash.new { |h, k| h[k] = 0 }
     attrs_of_points = {}
     attrs_arr = Query.query_by_str("SELECT points.attrs_json, points.row_index FROM #{table_name} as points WHERE points.row_index IN (#{row_indexes * ','})")

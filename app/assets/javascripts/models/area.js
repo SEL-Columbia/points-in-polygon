@@ -65,6 +65,7 @@ jQuery(function($){
       var percent = this.calPercentage();
       var style = app.style.getPercentageStyle(percent);
       this.setStyle(style);
+      countInArea = 0;
     },
 
     toggleClick: function() {
@@ -86,6 +87,7 @@ jQuery(function($){
 
       if(this.get('canExpandChild')) {
         this.get('areaSet').expandArea(e.target.areaId);
+        countInArea = 0;
       }
     },
 
@@ -115,15 +117,21 @@ jQuery(function($){
 
     showInfo: function(layer) {
       var percent = this.calPercentage();
+      var count = this.get('count');
+      if (typeof count == 'undefined') {
+        count = 0;
+      }
       if(this.get('showWay') == "percentage") {
-        var popContent = "" + this.get('count') + " / " + this.get('totalCount') + "(" + percent + "%)";
-        var centet;
+        var popContent = "" + count + " / " + this.get('totalCount') + "(" + percent + "%)";
+        if(typeof this.get('totalCount') == 'undefined' || this.get('totalCount') === 0) {
+          popContent = "None";
+        }
         layer.popup = L.popup()
           .setLatLng(layer.getBounds().getCenter())
           .setContent(popContent);
           //.openOn(app.map.get('lMap'));
         gPopup = layer.popup;
-        // TODO: solve the popup disapear when mouseover on the popup
+        // FIXME: solve the popup disapear when mouseover on the popup
         setTimeout(function() {
           gPopup.openOn(app.map.get('lMap'));
         }, 300);
@@ -132,7 +140,13 @@ jQuery(function($){
 
     calPercentage: function() {
       var count = this.get('count');
+      if (typeof count == 'undefined') {
+        count = 0;
+      }
       var totalCount = this.get('totalCount');
+      if (typeof totalCount == 'undefined' || totalCount === 0) {
+        return 0;
+      }
       return parseInt(count / totalCount * 100, 10);
     },
 

@@ -143,7 +143,7 @@ class Layer < ActiveRecord::Base
   end
 
   def build_areas(geo_entry)
-    areas.delete_all
+    #areas.delete_all
     case geo_entry
     when RGeo::Geographic::ProjectedMultiPolygonImpl
       areas.build :multipolygon => geo_entry.projection

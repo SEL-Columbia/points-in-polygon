@@ -38,7 +38,7 @@ class PermalinkController < ApplicationController
     end
 
     # get the view point
-    view_point = area_points.values[0].flatten[0..1]
+    view_point = area_points.values.flatten[0..1]
     data_json = {:area_points => area_points, :view_point => [view_point[0], view_point[1]], :render_url => render_url, :layer_id => layer.id}
     if result
       points_counts_array = points_count.values.select{|c| c>0}

@@ -1,6 +1,6 @@
 class LayersController < ApplicationController
   before_filter :set_tolerance, :only => [:show, :points_in_layer, :points_count_in_layer]
-
+protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topojson, :shapefile_topojson]
   # GET /layers
   # GET /layers.json
   def index

@@ -110,6 +110,7 @@ var app = app || {};
 
       $.post('/api/find_points_within_area', {area_id: areaId, table_name: this.pointsTableName}, function(pointIndexs) {
         if(pointIndexs.length <= 0) {
+          app.loading.stop();
           return;
         }
         // Now is clicked, will set unclicked after then
