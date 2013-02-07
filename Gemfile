@@ -78,3 +78,10 @@ group :development, :test do
   # Profiling toolkit for Rack applications with Rails integration. Client Side profiling, DB profiling and Server profiling.
   gem "rack-mini-profiler", "~> 0.1.23"
 end
+
+group :development do
+  # for deploy
+  gem 'rvm-capistrano', require: false # required by newer version of rvm
+  gem 'capistrano'
+  gem 'capistrano-ext'
+end

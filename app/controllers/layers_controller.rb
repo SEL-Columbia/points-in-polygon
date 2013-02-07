@@ -61,12 +61,11 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
   # POST /layers.json
   def create
     @layer = Layer.new(params[:layer])
-
     respond_to do |format|
       if @layer and @layer.save
         @layers = Layer.all
         format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
-        format.json { render json: {layers: @layers.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
+        format.json { render json: {layer: @layer.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
       else
         format.html { render action: "new" }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
@@ -83,7 +82,7 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
       if @layer.update_attributes(params[:layer])
         @layers = Layer.all
         format.html { redirect_to @layer, notice: 'Layer was successfully updated.' }
-        format.json { render json: {layers: @layers.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
+        format.json { render json: {layer: @layer.map {|layer|{id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
       else
         format.html { render action: "edit" }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
@@ -95,11 +94,16 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
   # DELETE /layers/1.json
   def destroy
     @layer = Layer.find(params[:id])
-    @layer.destroy
-
-    respond_to do |format|
-      format.html { redirect_to layers_url }
-      format.json { head :no_content }
+    if @layer.destroy
+      respond_to do |format|
+        format.html { redirect_to layers_url }
+        format.json { head :no_content }
+      end
+    else
+      respond_to do |format|
+        format.html { render action: "destroy", notice: "Can't destroy ERROR!" }
+        format.json { render :json => {:error => "Could not destroy layer" },:status => 401 }
+      end
     end
   end
 
@@ -143,48 +147,6 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
     render :json => result
   end
 
-  # FIXME: old api
-  # /points/:id,:lon,:lat
-  # /points/:id1,:lon1,:lat1;:id2,:lon2,:lat2
-  def points_query
-    # request.path => "/points/123,-74.006605,40.714623"
-    query = request.path.split("/").last.split(";")
-    points = query.inject([]) do |r, _|
-      id, lon, lat = _.split(",")
-      r << {:id => id, :lon => lon, :lat => lat}
-    end
-
-    tolerance = params[:tolerance].to_f if params[:tolerance].present?
-
-    lon_lats = points.map{|point| [point[:lon], point[:lat]] }
-    areas = Area.polygon_contains_points(points, tolerance)
-    points_in_area = []
-    areas.each do |area|
-      points = area.filter_including_points(points)
-      area_as_json = {
-        :layer_id => area.layer_id,
-        :area_id  => area.id,
-        :points   => points,
-        :pointsWithinCount    => points.count
-      }
-      points_in_area << area_as_json
-    end
-
-    if params['idsonly'] && params['idsonly'] == 'true'
-      points_in_area.each { |p| p.delete(:points) }
-    end
-
-    result = {
-      :points_in_area => points_in_area
-    }
-
-    # points_in_area = (
-    #   {id => id, layer_id => layer_id, area_id => area_id, points => ( {id => id, x =>x, y =>y}, {id => id, x =>x, y =>y}, ...)},
-    #   {id => id, layer_id => layer_id, area_id => area_id, points => ( {id => id, x =>x, y =>y}, {id => id, x =>x, y =>y}, ...)}
-    # )
-    render :json => result
-  end
-
   def points_in_layer_coord
     points = params[:points_coord].split(';').map do |p|
       id, lon, lat = p.split(',')
@@ -214,6 +176,8 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
       format.json { render :json => {:layer => @layer, :data_json => @data_json, :permalink => @permalink} }
     end
   end
+
+
 
   # FIXME: old api
   # /layers/:layer_id/points/:id,:lon,:lat
@@ -255,6 +219,7 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
     end
   end
 
+
   # Ajax query to get count in the areas of the layer based on some points
   def points_count_in_layer
     result = {:points_in_area => [], :points_count_arr => [], :areas_id => [], :count_id_hash => {}}
@@ -285,13 +250,19 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
         return true
       end
     end
-    created = Layer.create_from_topojson(upload) if upload
-    respond_to do |format|
-      format.html { redirect_to layers_path, notice: "#{created.size} layers created" }
-      @layers = Layer.all
-      format.json { render json: {layers: @layers.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
+    if upload
+      created = Layer.create_from_topojson(upload)
+      respond_to do |format|
+        format.html { redirect_to layers_path, notice: "#{created.size} layers created" }
+        @layers = Layer.all
+        format.json {render json: {layer: @layer.map {|layer|{id: layer.id, name:layer.name, number_of_polygons: layer.areas.count} }} }
+      end
+    else 
+      respond_to do |format|
+        format.html { render action: "new", notice: 'Shapefile uploading ERROR!' }
+        format.json { render json: @layer.errors, status: :unprocessable_entity }
+      end
     end
-
   end
 
   def upload_shapefile
@@ -304,9 +275,10 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
         }
         format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
         @layers = Layer.all
-        format.json { render json: {layers: @layers.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
+        format.json { render json: {layer: @layer.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
       else
         format.html { render action: "new", notice: 'Shapefile uploading ERROR!' }
+        format.json { render json: @layer.errors, status: :unprocessable_entity }
       end
     end
   end

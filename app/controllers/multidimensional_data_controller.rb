@@ -17,7 +17,6 @@ class MultidimensionalDataController < ApplicationController
   end
 
   def show
-    binding.pry
     unless params[:csv_file]
       flash[:warning] = "Please choose your csv file"
       redirect_to request.env['HTTP_REFERER']
