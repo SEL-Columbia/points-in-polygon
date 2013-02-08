@@ -144,6 +144,16 @@ ActiveRecord::Schema.define(:version => 20130105142749) do
 
   add_index "points6d20eea8f7c5ebc073b7", ["lon_lat"], :name => "points6d20eea8f7c5ebc073b7_lon_lat", :spatial => true
 
+  create_table "points6d51371d8a0528f370cd", :id => false, :force => true do |t|
+    t.float   "lat"
+    t.float   "lon"
+    t.integer "row_index"
+    t.text    "attrs_json"
+    t.spatial "lon_lat",    :limit => {:srid=>3785, :type=>"point"}
+  end
+
+  add_index "points6d51371d8a0528f370cd", ["lon_lat"], :name => "points6d51371d8a0528f370cd_lon_lat", :spatial => true
+
   create_table "points7185b87c53176183ecc9", :id => false, :force => true do |t|
     t.float   "lat"
     t.float   "lon"
@@ -188,6 +198,16 @@ ActiveRecord::Schema.define(:version => 20130105142749) do
   end
 
   add_index "points8a1a2dfd305103f67b07", ["lon_lat"], :name => "points8a1a2dfd305103f67b07_lon_lat", :spatial => true
+
+  create_table "points8bc00579fa0c6440f06d", :id => false, :force => true do |t|
+    t.float   "lat"
+    t.float   "lon"
+    t.integer "row_index"
+    t.text    "attrs_json"
+    t.spatial "lon_lat",    :limit => {:srid=>3785, :type=>"point"}
+  end
+
+  add_index "points8bc00579fa0c6440f06d", ["lon_lat"], :name => "points8bc00579fa0c6440f06d_lon_lat", :spatial => true
 
   create_table "points927f7d35f7569421a982", :id => false, :force => true do |t|
     t.float   "lat"
@@ -251,6 +271,16 @@ ActiveRecord::Schema.define(:version => 20130105142749) do
   end
 
   add_index "pointsbf27a8bbeff1feb1b263", ["lon_lat"], :name => "pointsbf27a8bbeff1feb1b263_lon_lat", :spatial => true
+
+  create_table "pointsc1c1bf93b0355211043e", :id => false, :force => true do |t|
+    t.float   "lat"
+    t.float   "lon"
+    t.integer "row_index"
+    t.text    "attrs_json"
+    t.spatial "lon_lat",    :limit => {:srid=>3785, :type=>"point"}
+  end
+
+  add_index "pointsc1c1bf93b0355211043e", ["lon_lat"], :name => "pointsc1c1bf93b0355211043e_lon_lat", :spatial => true
 
   create_table "pointscd0d0f82f687f2fe9071", :id => false, :force => true do |t|
     t.float   "lat"

@@ -62,10 +62,10 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
   def create
     @layer = Layer.new(params[:layer])
     respond_to do |format|
-      if @layer and @layer.save
-        @layers = Layer.all
+      if @layer.save
         format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
-        format.json { render json: {layer: @layer.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
+        format.json { render json: {layer:
+            {id: @layer.id, name:@layer.name, number_of_polygons: @layer.areas.count}} }
       else
         format.html { render action: "new" }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
@@ -80,9 +80,9 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
 
     respond_to do |format|
       if @layer.update_attributes(params[:layer])
-        @layers = Layer.all
         format.html { redirect_to @layer, notice: 'Layer was successfully updated.' }
-        format.json { render json: {layer: @layer.map {|layer|{id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
+        format.json { render json: {layer:
+            {id: @layer.id, name:@layer.name, number_of_polygons: @layer.areas.count}} }
       else
         format.html { render action: "edit" }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
@@ -254,10 +254,10 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
       created = Layer.create_from_topojson(upload)
       respond_to do |format|
         format.html { redirect_to layers_path, notice: "#{created.size} layers created" }
-        @layers = Layer.all
-        format.json {render json: {layer: @layer.map {|layer|{id: layer.id, name:layer.name, number_of_polygons: layer.areas.count} }} }
+        format.json { render json: {layer:
+            {id: @layer.id, name:@layer.name, number_of_polygons: @layer.areas.count}} }
       end
-    else 
+    else
       respond_to do |format|
         format.html { render action: "new", notice: 'Shapefile uploading ERROR!' }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
@@ -274,8 +274,8 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
           l.update_attributes({:parent_id => @layers[i].id})
         }
         format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
-        @layers = Layer.all
-        format.json { render json: {layer: @layer.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
+        format.json { render json: {layer:
+            {id: @layer.id, name:@layer.name, number_of_polygons: @layer.areas.count}} }
       else
         format.html { render action: "new", notice: 'Shapefile uploading ERROR!' }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
