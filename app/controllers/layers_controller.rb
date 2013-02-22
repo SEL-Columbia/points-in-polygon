@@ -1,16 +1,13 @@
 class LayersController < ApplicationController
   before_filter :set_tolerance, :only => [:show, :points_in_layer, :points_count_in_layer]
-protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topojson, :shapefile_topojson]
+  protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topojson, :shapefile_topojson]
   # GET /layers
   # GET /layers.json
   def index
     @layers = Layer.order(:id)
-
     respond_to do |format|
       format.html # index.html.erb
-      # example output:
-      # {"layers":[{"id":14,"name":"coutries","number_of_polygons":279}]}
-      format.json { render json: {layers: @layers.map {|layer| {id: layer.id, name:layer.name, number_of_polygons: layer.areas.count}}} }
+      format.json { render json: Rabl.render(@layers, 'layers/index', :view_path => 'app/rabl', :format => :json) }
     end
   end
 
@@ -64,8 +61,7 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
     respond_to do |format|
       if @layer.save
         format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
-        format.json { render json: {layer:
-            {id: @layer.id, name:@layer.name, number_of_polygons: @layer.areas.count}} }
+        format.json { render json: Rabl.render(@layer, 'layers/create', :view_path => 'app/rabl', :format => :json) }
       else
         format.html { render action: "new" }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
@@ -259,7 +255,7 @@ protect_from_forgery :except => [:create, :delete, :edit, :update, :upload_topoj
       end
     else
       respond_to do |format|
-        format.html { render action: "new", notice: 'Shapefile uploading ERROR!' }
+        format.html { render action: "new", notice: 'Topojson uploading ERROR!' }
         format.json { render json: @layer.errors, status: :unprocessable_entity }
       end
     end

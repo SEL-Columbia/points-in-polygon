@@ -29,6 +29,9 @@ gem 'jquery-rails'
 
 # This is an ActiveRecord connection adapter for PostGIS. It is based on the stock PostgreSQL adapter, but provides built-in support for the spatial extensions provided by PostGIS. It uses the RGeo library to represent spatial data in Ruby.
 gem "activerecord-postgis-adapter", "~> 0.4.3"
+gem "json", "~> 1.7.6"
+gem 'rabl'
+gem 'rubyzip', "~> 0.9.9"
 
 # RGeo is a geospatial data library for Ruby
 # homepage: http://dazuma.github.com/rgeo/
@@ -72,11 +75,9 @@ group :development, :test do
   # use "binding.pry" as "debugger"
   gem "pry-debugger"
 
-  # A thin and fast web server
-  gem "thin", "~> 1.5.0"
-
-  # Profiling toolkit for Rack applications with Rails integration. Client Side profiling, DB profiling and Server profiling.
-  gem "rack-mini-profiler", "~> 0.1.23"
+  gem 'rspec-rails'
+  gem 'factory_girl_rails'
+  gem 'multi_json'
 end
 
 group :development do

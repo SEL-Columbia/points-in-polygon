@@ -29,6 +29,7 @@ class Layer < ActiveRecord::Base
         layer = Layer.new(:geo_file => geojson_file)
         layer.save if layer.areas.size > 0
         created << layer unless layer.new_record?
+        layer
       end
 
       # clear tmp files
