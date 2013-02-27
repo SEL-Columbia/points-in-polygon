@@ -2,14 +2,14 @@ module ApiTaster
   class Route
     class << self
       # we dont need Missing Route Definitions Detection
-      #         def missing_definitions
-      #           []
-      #         end
-      # 
-      #         we dont need Obsolete / Mismatched Route Definitions Detection
-      #         def obsolete_definitions
-      #                 []
-      #               end
+      # def missing_definitions
+      #   []
+      # end
+
+      # we dont need Obsolete / Mismatched Route Definitions Detection
+      # def obsolete_definitions
+      #         []
+      #       end
     end
   end
 end
@@ -17,14 +17,14 @@ end
 ApiTaster.routes do
 
   desc <<HERE
-    Layers list add .json extension for json output YO
+    Layers list add .json extension for json output
 HERE
-  get '/layers.json', {}
+  get '/layers', {}
 
   desc <<HERE
     Layer creation, supply a geojson file in post
 HERE
-  post '/layers.json', {
+  post '/layers', {
     :layer => {
       :name => 'layer',
       :geo_file => :file

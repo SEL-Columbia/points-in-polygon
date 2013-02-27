@@ -36,10 +36,8 @@ class LayersController < ApplicationController
   # GET /layers/new.json
   def new
     @layer = Layer.new
-
     respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @layer }
+      format.html
     end
   end
 
@@ -57,21 +55,22 @@ class LayersController < ApplicationController
   # POST /layers
   # POST /layers.json
   def create
-    @layer = Layer.new(params[:layer])
+    @layers = return_in_correct_format(params)
+
     respond_to do |format|
-      if @layer.save
-        format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
-        format.json { render json: Rabl.render(@layer, 'layers/create', :view_path => 'app/rabl', :format => :json) }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @layer.errors, status: :unprocessable_entity }
-      end
+      format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
+      format.json { render json: Rabl.render(@layers, 'layers/create', :view_path => 'app/rabl', :format => :json) }
     end
+    # else
+    #     format.html { render action: "new" }
+    #     format.json { render json: @layer.errors, status: :unprocessable_entity }
+    #   end
   end
 
-  # PUT /layers/1
-  # PUT /layers/1.json
-  def update
+
+
+  # I dont think this does what it should
+  def updates
     @layer = Layer.find(params[:id])
 
     respond_to do |format|
@@ -236,8 +235,32 @@ class LayersController < ApplicationController
     end
   end
 
-  def upload_topojson
-    upload = params[:layer][:upload]
+
+  def return_in_correct_format(params)
+    format = File.extname(params[:layer][:file].original_filename)
+
+    case format
+    when '.geojson'
+      return create_with_geojson
+    when '.geo.json'
+      return create_with_geojson
+    when '.json'
+      return create_with_topojson
+    when '.zip'
+      return create_with_shapefile
+    else
+      return false
+    end
+  end
+
+  def create_with_geojson
+    @layer = Layer.new(params[:layer])
+    @layer.save
+    [@layer]
+  end
+
+  def create_with_topojson
+    upload = params[:layer][:file]
     # The comparing method should be improved
     if upload.class != ActionDispatch::Http::UploadedFile
       if upload[:tempfile].class == ActionDispatch::Http::UploadedFile
@@ -247,20 +270,47 @@ class LayersController < ApplicationController
       end
     end
     if upload
-      created = Layer.create_from_topojson(upload)
+      @layers = Layer.create_from_topojson(upload)
+    end
+    @layers
+  end
+
+  def create_with_shapefile
+    @layers = Layer.upload_shapefile(params[:layer])
+    if @layers and @layers.map(&:save).all?
+      @layers[1..-1].each_with_index do |l, i|
+        l.update_attributes({:parent_id => @layers[i].id})
+      end
+    end
+    @layers
+  end
+
+
+  # Deprecated
+  def upload_topojson
+    upload = params[:layer][:file]
+    # The comparing method should be improved
+    if upload.class != ActionDispatch::Http::UploadedFile
+      if upload[:tempfile].class == ActionDispatch::Http::UploadedFile
+        upload = upload[:tempfile]
+      else
+        return true
+      end
+    end
+    if upload
+      @layers = Layer.create_from_topojson(upload)
       respond_to do |format|
-        format.html { redirect_to layers_path, notice: "#{created.size} layers created" }
-        format.json { render json: {layer:
-            {id: @layer.id, name:@layer.name, number_of_polygons: @layer.areas.count}} }
+        format.html { redirect_to layers_path, notice: "#{@layers.size} layers created" }
+        format.json { render json: Rabl.render(@layers, 'layers/upload_topojson', :view_path => 'app/rabl', :format => :json) }
       end
     else
       respond_to do |format|
         format.html { render action: "new", notice: 'Topojson uploading ERROR!' }
-        format.json { render json: @layer.errors, status: :unprocessable_entity }
+        format.json { render json: @layers.map(&:errors), status: :unprocessable_entity }
       end
     end
   end
-
+  # Deprecated
   def upload_shapefile
      @layers = Layer.upload_shapefile(params[:layer])
 
@@ -270,11 +320,10 @@ class LayersController < ApplicationController
           l.update_attributes({:parent_id => @layers[i].id})
         }
         format.html { redirect_to layers_path, notice: 'Layer was successfully created.' }
-        format.json { render json: {layer:
-            {id: @layer.id, name:@layer.name, number_of_polygons: @layer.areas.count}} }
+        format.json { render json: Rabl.render(@layers, 'layers/upload_topojson', :view_path => 'app/rabl', :format => :json) }
       else
         format.html { render action: "new", notice: 'Shapefile uploading ERROR!' }
-        format.json { render json: @layer.errors, status: :unprocessable_entity }
+        format.json { render json: @layers.map(&:errors), status: :unprocessable_entity }
       end
     end
   end

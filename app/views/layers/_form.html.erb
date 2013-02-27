@@ -1,5 +1,5 @@
 <%= form_for(@layer, :html => {:class => 'form-horizontal', :multipart => true}) do |f| %>
-  <legend>Geojson format</legend>
+  <legend>GeoJSON, TopoJSON, Shapefile format</legend>
   <% if @layer.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@layer.errors.count, "error") %> prohibited this layer from being saved:</h2>
@@ -20,9 +20,9 @@
   </div>
 
   <div class="control-group">
-    <%= f.label :geo_file, 'Geojson', :class => 'control-label' %>
+    <%= f.label :file, 'Geojson', :class => 'control-label' %>
     <div class="controls">
-      <%= f.file_field :geo_file %>
+      <%= f.file_field :file %>
     </div>
   </div>
 

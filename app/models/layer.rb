@@ -1,10 +1,11 @@
+require 'fileutils'
 require 'zip/zipfilesystem'
 require 'csv'
 
 class Layer < ActiveRecord::Base
-  attr_accessor :geo_file
-  attr_accessible :name, :geo_file, :parent_id
-  validates :geo_file, :presence => true, :on => :create
+  attr_accessor :file
+  attr_accessible :name, :file, :parent_id
+  validates :file, :presence => true, :on => :create
 
   has_many :areas, :dependent => :destroy
   belongs_to :parent, :class_name => 'Layer', :foreign_key => 'parent_id'
@@ -26,7 +27,7 @@ class Layer < ActiveRecord::Base
         geojson_file.define_singleton_method(:original_filename) { File.basename(geojson_file.path) }
         geojson_file.define_singleton_method(:tempfile) { geojson_file }
         # create layer
-        layer = Layer.new(:geo_file => geojson_file)
+        layer = Layer.new(:file => geojson_file)
         layer.save if layer.areas.size > 0
         created << layer unless layer.new_record?
         layer
@@ -40,26 +41,26 @@ class Layer < ActiveRecord::Base
 
     def topojson_file_to_geojson(upload)
       geojson_dir = Rails.root.join("tmp/topojson_to_geojson/#{SecureRandom.hex(15)}")
+      geojson_file = File.join(geojson_dir, upload.original_filename)
       FileUtils.mkdir_p(geojson_dir)
       system %{geojson -o #{geojson_dir} #{upload.tempfile.path}}
-      # FileUtils.rm_rf geojson_dir
       geojson_dir
     end
   end
 
-  def geo_file=(upload_file)
+  def file=(upload_file)
     # The comparing method should be improved
     if upload_file.class == ActionDispatch::Http::UploadedFile || upload_file.class == File
-      @geo_file = upload_file
+      @file = upload_file
     elsif upload_file[:tempfile].class == ActionDispatch::Http::UploadedFile
-      @geo_file = upload_file[:tempfile]
+      @file = upload_file[:tempfile]
     else
       return true
     end
     # convert geojson file to polygons data
-    geojson_file_to_areas(@geo_file.read)
+    geojson_file_to_areas(@file.read)
     # convert geojson file to topojson file
-    geojson_file_to_topojson_file(@geo_file)
+    geojson_file_to_topojson_file(@file)
   end
 
   def self.upload_shapefile(params)
@@ -67,10 +68,10 @@ class Layer < ActiveRecord::Base
     base_path = "tmp/shapefiles/#{random_dir}"
     layers = []
 
-    if params[:geo_file].class == ActionDispatch::Http::UploadedFile
-      @shapefile = params[:geo_file]
-    elsif params[:geo_file][:tempfile].class == ActionDispatch::Http::UploadedFile
-      @shapefile = params[:geo_file][:tempfile]
+    if params[:file].class == ActionDispatch::Http::UploadedFile
+      @shapefile = params[:file]
+    elsif params[:file][:tempfile].class == ActionDispatch::Http::UploadedFile
+      @shapefile = params[:file][:tempfile]
     else
       return true
     end
@@ -91,7 +92,7 @@ class Layer < ActiveRecord::Base
       zipfile.each do |entry|
         file_path = File.join(base_path, entry.name)
         if entry.name.match(/.*\.shp$/)
-          params.delete(:geo_file)
+          params.delete(:file)
           layers.push Layer.new(params.merge({:name => params[:name] + "_#{entry.name[0..-5]}"})).ziped_shapefile_to_areas(file_path)
         elsif entry.name.match(/.*\.csv$/)
           csv_data = CSV.read file_path
@@ -117,9 +118,10 @@ class Layer < ActiveRecord::Base
   end
 
   def ziped_shapefile_to_areas(file_path)
-    @geo_file = file_path
+    @file = file_path
+
     geo_factory = RGeo::Geographic.simple_mercator_factory
-    RGeo::Shapefile::Reader.open(@geo_file, :factory => geo_factory, :srid => 3785) do |file|
+    RGeo::Shapefile::Reader.open(@file, :factory => geo_factory, :srid => 3785) do |file|
       file.each do |record|
         build_areas record.geometry
       end
@@ -136,10 +138,10 @@ class Layer < ActiveRecord::Base
     build_areas geo_json
   end
 
-  def geojson_file_to_topojson_file(geo_file)
+  def geojson_file_to_topojson_file(file)
     topojosn_file_path = Rails.root.join("tmp", "#{SecureRandom.hex(15)}.topojson")
     # use `topojson` command to convert geojson to topojson
-    system %{topojson -p true -o #{topojosn_file_path} #{geo_file.tempfile.path}}
+    system %{topojson -p true -o #{topojosn_file_path} #{file.tempfile.path}}
     @topojson_file = topojosn_file_path if File.exist?(topojosn_file_path)
   end
 
@@ -182,7 +184,7 @@ class Layer < ActiveRecord::Base
   end
 
   def set_name_from_upload_file
-    self.name = geo_file.original_filename if geo_file && name.blank?
+    self.name = file.original_filename if file && name.blank?
   end
 
   def topojson_file_save_path
