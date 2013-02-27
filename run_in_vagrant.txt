@@ -1,0 +1,13 @@
+
+1) download and install vagrant and virtual box
+2) download the file from here: https://cdn.ib5k.com/pointsinarea_v1.box
+3) add the box:
+   vagrant box add pointsinarea_v1 /path/to/pointsinarea_v1.box
+4) cd into the pointsinarea checkout and run
+   vagrant up
+5) to login to the machine type:
+   vagrant ssh
+6) to start the service run:
+   cd /vagrant && rails s
+7) in your host machine point your browser to http://localhost:3000
+   and the app will load ...
