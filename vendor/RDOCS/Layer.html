@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+<title>class Layer - RDoc Documentation</title>
+
+<link type="text/css" media="screen" href="./rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+</script>
+
+<script type="text/javascript" charset="utf-8" src="./js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/darkfish.js"></script>
+
+
+<body id="top" class="class">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="./index.html">Home</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
+
+
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
+
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
+
+
+  <div id="file-metadata">
+    <nav id="file-list-section" class="section">
+  <h3 class="section-header">Defined In</h3>
+  <ul>
+    <li>app/models/layer.rb
+  </ul>
+</nav>
+
+    
+  </div>
+
+  <div id="class-metadata">
+    
+    <nav id="parent-class-section" class="section">
+  <h3 class="section-header">Parent</h3>
+  
+  <p class="link">ActiveRecord::Base
+  
+</nav>
+
+    
+    <!-- Method Quickref -->
+<nav id="method-list-section" class="section">
+  <h3 class="section-header">Methods</h3>
+
+  <ul class="link-list">
+    
+    <li><a href="#method-c-create_from_topojson">::create_from_topojson</a>
+    
+    <li><a href="#method-c-topojson_file_to_geojson">::topojson_file_to_geojson</a>
+    
+    <li><a href="#method-c-upload_shapefile">::upload_shapefile</a>
+    
+    <li><a href="#method-i-build_areas">#build_areas</a>
+    
+    <li><a href="#method-i-geo_file-3D">#geo_file=</a>
+    
+    <li><a href="#method-i-geojson_file_to_areas">#geojson_file_to_areas</a>
+    
+    <li><a href="#method-i-geojson_file_to_topojson_file">#geojson_file_to_topojson_file</a>
+    
+    <li><a href="#method-i-set_name_from_upload_file">#set_name_from_upload_file</a>
+    
+    <li><a href="#method-i-to_topojson">#to_topojson</a>
+    
+    <li><a href="#method-i-topojson_file_save_path">#topojson_file_save_path</a>
+    
+    <li><a href="#method-i-ziped_shapefile_to_areas">#ziped_shapefile_to_areas</a>
+    
+  </ul>
+</nav>
+
+  </div>
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="./#README_rdoc#.html">#README</a>
+  
+    <li class="file"><a href="./Gemfile.html">Gemfile</a>
+  
+    <li class="file"><a href="./README_rdoc.html">README</a>
+  
+    <li class="file"><a href="./Rakefile.html">Rakefile</a>
+  
+    <li class="file"><a href="./doc/README_FOR_APP.html">README_FOR_APP</a>
+  
+    <li class="file"><a href="./public/robots_txt.html">robots</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="./ActiveSupport.html">ActiveSupport</a>
+  
+    <li><a href="./ActiveSupport/TestCase.html">ActiveSupport::TestCase</a>
+  
+    <li><a href="./Pointsinarea.html">Pointsinarea</a>
+  
+    <li><a href="./Pointsinarea/Application.html">Pointsinarea::Application</a>
+  
+    <li><a href="./ApplicationController.html">ApplicationController</a>
+  
+    <li><a href="./ApplicationHelper.html">ApplicationHelper</a>
+  
+    <li><a href="./Area.html">Area</a>
+  
+    <li><a href="./BrowsingTest.html">BrowsingTest</a>
+  
+    <li><a href="./CreateAreas.html">CreateAreas</a>
+  
+    <li><a href="./CreateLayers.html">CreateLayers</a>
+  
+    <li><a href="./Layer.html">Layer</a>
+  
+    <li><a href="./LayerTest.html">LayerTest</a>
+  
+    <li><a href="./LayersController.html">LayersController</a>
+  
+    <li><a href="./MultidimensionalDataController.html">MultidimensionalDataController</a>
+  
+    <li><a href="./MultidimensionalDataControllerTest.html">MultidimensionalDataControllerTest</a>
+  
+    <li><a href="./MultidimensionalDataHelperTest.html">MultidimensionalDataHelperTest</a>
+  
+    <li><a href="./Object.html">Object</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation">
+  <h1 class="class">class Layer</h1>
+
+  <div id="description" class="description">
+    
+  </div><!-- description -->
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+    <!-- Attributes -->
+    <section id="attribute-method-details" class="method-section section">
+      <h3 class="section-header">Attributes</h3>
+
+      
+      <div id="attribute-i-geo_file" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">geo_file</span><span
+            class="attribute-access-type">[RW]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+    </section><!-- attribute-method-details -->
+    
+
+    <!-- Methods -->
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section section">
+      <h3 class="section-header">Public Class Methods</h3>
+
+    
+      <div id="method-c-create_from_topojson" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">create_from_topojson</span><span
+            class="method-args">(upload)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="create_from_topojson-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 14</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">create_from_topojson</span>(<span class="ruby-identifier">upload</span>)
+  <span class="ruby-identifier">created</span> = []
+  <span class="ruby-comment"># convert topojson file to geojson data</span>
+  <span class="ruby-identifier">geojson_dir</span> = <span class="ruby-identifier">topojson_file_to_geojson</span>(<span class="ruby-identifier">upload</span>)
+
+  <span class="ruby-comment"># create layers with geojson data</span>
+  <span class="ruby-constant">Dir</span>[<span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">geojson_dir</span>, <span class="ruby-string">&quot;*&quot;</span>)].<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">geojson_file_path</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">geojson_file</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">geojson_file_path</span>)
+    <span class="ruby-comment"># acts as a uploaded file</span>
+    <span class="ruby-identifier">geojson_file</span>.<span class="ruby-identifier">define_singleton_method</span>(<span class="ruby-value">:original_filename</span>) { <span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">geojson_file</span>.<span class="ruby-identifier">path</span>) }
+    <span class="ruby-identifier">geojson_file</span>.<span class="ruby-identifier">define_singleton_method</span>(<span class="ruby-value">:tempfile</span>) { <span class="ruby-identifier">geojson_file</span> }
+    <span class="ruby-comment"># create layer</span>
+    <span class="ruby-identifier">layer</span> = <span class="ruby-constant">Layer</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value">:geo_file</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">geojson_file</span>)
+    <span class="ruby-identifier">layer</span>.<span class="ruby-identifier">save</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">layer</span>.<span class="ruby-identifier">areas</span>.<span class="ruby-identifier">size</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+    <span class="ruby-identifier">created</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">layer</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">layer</span>.<span class="ruby-identifier">new_record?</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># clear tmp files</span>
+  <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">rm_rf</span> <span class="ruby-identifier">geojson_dir</span>
+
+  <span class="ruby-identifier">created</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- create_from_topojson-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- create_from_topojson-method -->
+
+    
+      <div id="method-c-topojson_file_to_geojson" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">topojson_file_to_geojson</span><span
+            class="method-args">(upload)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="topojson_file_to_geojson-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 37</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">topojson_file_to_geojson</span>(<span class="ruby-identifier">upload</span>)
+  <span class="ruby-identifier">geojson_dir</span> = <span class="ruby-constant">Rails</span>.<span class="ruby-identifier">root</span>.<span class="ruby-identifier">join</span>(<span class="ruby-node">&quot;tmp/topojson_to_geojson/#{SecureRandom.hex(15)}&quot;</span>)
+  <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">mkdir_p</span>(<span class="ruby-identifier">geojson_dir</span>)
+  <span class="ruby-identifier">system</span> <span class="ruby-node">%Q{geojson -o #{geojson_dir} #{upload.tempfile.path}}</span>
+  <span class="ruby-comment"># FileUtils.rm_rf geojson_dir</span>
+  <span class="ruby-identifier">geojson_dir</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- topojson_file_to_geojson-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- topojson_file_to_geojson-method -->
+
+    
+      <div id="method-c-upload_shapefile" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">upload_shapefile</span><span
+            class="method-args">(params)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="upload_shapefile-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 56</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">upload_shapefile</span>(<span class="ruby-identifier">params</span>)
+  <span class="ruby-identifier">random_dir</span> = <span class="ruby-constant">SecureRandom</span>.<span class="ruby-identifier">hex</span>(<span class="ruby-value">15</span>)
+  <span class="ruby-identifier">base_path</span> = <span class="ruby-node">&quot;tmp/shapefiles/#{random_dir}&quot;</span>
+  <span class="ruby-identifier">layers</span> = []
+
+  <span class="ruby-constant">Zip</span><span class="ruby-operator">::</span><span class="ruby-constant">ZipFile</span>.<span class="ruby-identifier">open</span>(<span class="ruby-identifier">params</span>[<span class="ruby-value">:geo_file</span>].<span class="ruby-identifier">path</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">zipfile</span><span class="ruby-operator">|</span>
+    <span class="ruby-comment"># Extract all the file to tmp/shapefiles</span>
+    <span class="ruby-identifier">zipfile</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">entry</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">file_path</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">base_path</span>, <span class="ruby-identifier">entry</span>.<span class="ruby-identifier">name</span>)
+      <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">mkdir_p</span>(<span class="ruby-constant">File</span>.<span class="ruby-identifier">dirname</span>(<span class="ruby-identifier">file_path</span>))
+      <span class="ruby-identifier">zipfile</span>.<span class="ruby-identifier">extract</span>(<span class="ruby-identifier">entry</span>, <span class="ruby-identifier">file_path</span>) <span class="ruby-keyword">unless</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">file_path</span>)
+    <span class="ruby-keyword">end</span>
+
+    <span class="ruby-comment"># Handle the shapefiles</span>
+    <span class="ruby-identifier">zipfile</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">entry</span><span class="ruby-operator">|</span>
+      <span class="ruby-comment">#binding.pry</span>
+      <span class="ruby-identifier">file_path</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">base_path</span>, <span class="ruby-identifier">entry</span>.<span class="ruby-identifier">name</span>)
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">entry</span>.<span class="ruby-identifier">name</span>.<span class="ruby-identifier">match</span>(<span class="ruby-regexp">%r.*\.shp$/</span>)
+        <span class="ruby-identifier">params</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-value">:geo_file</span>)
+        <span class="ruby-identifier">layers</span>.<span class="ruby-identifier">push</span> <span class="ruby-constant">Layer</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">params</span>.<span class="ruby-identifier">merge</span>({<span class="ruby-value">:name</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:name</span>] <span class="ruby-operator">+</span> <span class="ruby-node">&quot;_#{entry.name[0..-5]}&quot;</span>})).<span class="ruby-identifier">ziped_shapefile_to_areas</span>(<span class="ruby-identifier">file_path</span>)
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-comment"># Delete all the files after handling</span>
+  <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">rm_rf</span> <span class="ruby-constant">Dir</span>.<span class="ruby-identifier">glob</span>(<span class="ruby-identifier">base_path</span>)
+  <span class="ruby-identifier">layers</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- upload_shapefile-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- upload_shapefile-method -->
+
+    
+    </section><!-- public-class-method-details -->
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section section">
+      <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="method-i-build_areas" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">build_areas</span><span
+            class="method-args">(geo_entry)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="build_areas-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 111</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">build_areas</span>(<span class="ruby-identifier">geo_entry</span>)
+  <span class="ruby-keyword">case</span> <span class="ruby-identifier">geo_entry</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Geographic</span><span class="ruby-operator">::</span><span class="ruby-constant">ProjectedMultiPolygonImpl</span>
+    <span class="ruby-identifier">geo_entry</span>.<span class="ruby-identifier">entries</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">polygon</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">areas</span>.<span class="ruby-identifier">build</span> <span class="ruby-value">:polygon</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">polygon</span>.<span class="ruby-identifier">projection</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Geographic</span><span class="ruby-operator">::</span><span class="ruby-constant">ProjectedPolygonImpl</span>
+    <span class="ruby-identifier">areas</span>.<span class="ruby-identifier">build</span> <span class="ruby-value">:polygon</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">geo_entry</span>.<span class="ruby-identifier">projection</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">GeoJSON</span><span class="ruby-operator">::</span><span class="ruby-constant">FeatureCollection</span>
+    <span class="ruby-identifier">geo_entry</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">feature</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">geometry</span> = <span class="ruby-identifier">feature</span>.<span class="ruby-identifier">geometry</span>
+      <span class="ruby-keyword">case</span> <span class="ruby-identifier">geometry</span>
+      <span class="ruby-keyword">when</span> <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Geographic</span><span class="ruby-operator">::</span><span class="ruby-constant">ProjectedMultiPolygonImpl</span>
+        <span class="ruby-identifier">geometry</span>.<span class="ruby-identifier">entries</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">polygon</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">areas</span>.<span class="ruby-identifier">build</span> <span class="ruby-value">:polygon</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">polygon</span>.<span class="ruby-identifier">projection</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">when</span> <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Geographic</span><span class="ruby-operator">::</span><span class="ruby-constant">ProjectedPolygonImpl</span>
+        <span class="ruby-identifier">areas</span>.<span class="ruby-identifier">build</span> <span class="ruby-value">:polygon</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">geometry</span>.<span class="ruby-identifier">projection</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Geographic</span><span class="ruby-operator">::</span><span class="ruby-constant">ProjectedGeometryCollectionImpl</span> <span class="ruby-comment"># from a geojson converted from topojson</span>
+    <span class="ruby-identifier">geo_entry</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">geometry</span><span class="ruby-operator">|</span>
+      <span class="ruby-keyword">case</span> <span class="ruby-identifier">geometry</span>
+      <span class="ruby-keyword">when</span> <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Geographic</span><span class="ruby-operator">::</span><span class="ruby-constant">ProjectedMultiPolygonImpl</span>
+        <span class="ruby-identifier">geometry</span>.<span class="ruby-identifier">entries</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">polygon</span><span class="ruby-operator">|</span>
+          <span class="ruby-identifier">areas</span>.<span class="ruby-identifier">build</span> <span class="ruby-value">:polygon</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">polygon</span>.<span class="ruby-identifier">projection</span>
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-keyword">when</span> <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Geographic</span><span class="ruby-operator">::</span><span class="ruby-constant">ProjectedPolygonImpl</span>
+        <span class="ruby-identifier">areas</span>.<span class="ruby-identifier">build</span> <span class="ruby-value">:polygon</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">geometry</span>.<span class="ruby-identifier">projection</span>
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- build_areas-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- build_areas-method -->
+
+    
+      <div id="method-i-geo_file-3D" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">geo_file=</span><span
+            class="method-args">(upload_file)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="geo_file-3D-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 46</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">geo_file=</span>(<span class="ruby-identifier">upload_file</span>)
+  <span class="ruby-ivar">@geo_file</span> = <span class="ruby-identifier">upload_file</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-ivar">@geo_file</span>.<span class="ruby-identifier">original_filename</span>.<span class="ruby-identifier">match</span>(<span class="ruby-string">'json'</span>)
+    <span class="ruby-comment"># convert geojson file to polygons data</span>
+    <span class="ruby-identifier">geojson_file_to_areas</span>(<span class="ruby-ivar">@geo_file</span>.<span class="ruby-identifier">read</span>)
+    <span class="ruby-comment"># convert geojson file to topojson file</span>
+    <span class="ruby-identifier">geojson_file_to_topojson_file</span>(<span class="ruby-ivar">@geo_file</span>)
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- geo_file-3D-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- geo_file-3D-method -->
+
+    
+      <div id="method-i-geojson_file_to_areas" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">geojson_file_to_areas</span><span
+            class="method-args">(json_str)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="geojson_file_to_areas-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 97</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">geojson_file_to_areas</span>(<span class="ruby-identifier">json_str</span>)
+  <span class="ruby-identifier">geo_factory</span> = <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Geographic</span>.<span class="ruby-identifier">simple_mercator_factory</span>
+  <span class="ruby-identifier">geo_json</span> = <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">GeoJSON</span>.<span class="ruby-identifier">decode</span>(<span class="ruby-identifier">json_str</span>, <span class="ruby-value">:json_parser</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-value">:json</span>, <span class="ruby-value">:geo_factory</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">geo_factory</span>)
+  <span class="ruby-comment"># TODO: checout why geo_json is nil if geojson_file.original_filename == &quot;land.json&quot; (upload public/topojson_sample/us.json)</span>
+  <span class="ruby-identifier">build_areas</span> <span class="ruby-identifier">geo_json</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- geojson_file_to_areas-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- geojson_file_to_areas-method -->
+
+    
+      <div id="method-i-geojson_file_to_topojson_file" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">geojson_file_to_topojson_file</span><span
+            class="method-args">(geo_file)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="geojson_file_to_topojson_file-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 104</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">geojson_file_to_topojson_file</span>(<span class="ruby-identifier">geo_file</span>)
+  <span class="ruby-identifier">topojosn_file_path</span> = <span class="ruby-constant">Rails</span>.<span class="ruby-identifier">root</span>.<span class="ruby-identifier">join</span>(<span class="ruby-string">&quot;tmp&quot;</span>, <span class="ruby-node">&quot;#{SecureRandom.hex(15)}.topojson&quot;</span>)
+  <span class="ruby-comment"># use `topojson` command to convert geojson to topojson</span>
+  <span class="ruby-identifier">system</span> <span class="ruby-node">%Q{topojson -p true -o #{topojosn_file_path} #{geo_file.tempfile.path}}</span>
+  <span class="ruby-ivar">@topojson_file</span> = <span class="ruby-identifier">topojosn_file_path</span> <span class="ruby-keyword">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exist?</span>(<span class="ruby-identifier">topojosn_file_path</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- geojson_file_to_topojson_file-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- geojson_file_to_topojson_file-method -->
+
+    
+      <div id="method-i-set_name_from_upload_file" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">set_name_from_upload_file</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="set_name_from_upload_file-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 145</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">set_name_from_upload_file</span>
+  <span class="ruby-keyword">self</span>.<span class="ruby-identifier">name</span> = <span class="ruby-identifier">geo_file</span>.<span class="ruby-identifier">original_filename</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">geo_file</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">blank?</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- set_name_from_upload_file-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- set_name_from_upload_file-method -->
+
+    
+      <div id="method-i-to_topojson" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">to_topojson</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="to_topojson-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 158</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">to_topojson</span>
+  <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@topojson</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-constant">File</span>.<span class="ruby-identifier">exists?</span> <span class="ruby-identifier">topojson_file_save_path</span>
+      <span class="ruby-ivar">@topojson</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">read</span>(<span class="ruby-identifier">topojson_file_save_path</span>)
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-ivar">@topojson</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- to_topojson-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- to_topojson-method -->
+
+    
+      <div id="method-i-topojson_file_save_path" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">topojson_file_save_path</span><span
+            class="method-args">()</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="topojson_file_save_path-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 149</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">topojson_file_save_path</span>
+  <span class="ruby-keyword">unless</span> <span class="ruby-ivar">@topojson_file_save_path</span>
+    <span class="ruby-identifier">base_path</span> = <span class="ruby-constant">Rails</span>.<span class="ruby-identifier">root</span>.<span class="ruby-identifier">join</span>(<span class="ruby-string">&quot;public&quot;</span>, <span class="ruby-string">&quot;system&quot;</span>, <span class="ruby-string">&quot;topojson&quot;</span>)
+    <span class="ruby-constant">FileUtils</span>.<span class="ruby-identifier">mkdir_p</span>(<span class="ruby-identifier">base_path</span>)
+    <span class="ruby-ivar">@topojson_file_save_path</span> = <span class="ruby-constant">File</span>.<span class="ruby-identifier">join</span>(<span class="ruby-identifier">base_path</span>, <span class="ruby-node">&quot;#{id}.topojson&quot;</span>)
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-ivar">@topojson_file_save_path</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- topojson_file_save_path-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- topojson_file_save_path-method -->
+
+    
+      <div id="method-i-ziped_shapefile_to_areas" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">ziped_shapefile_to_areas</span><span
+            class="method-args">(file_path)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="ziped_shapefile_to_areas-source">
+            <pre><span class="ruby-comment"># File app/models/layer.rb, line 84</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">ziped_shapefile_to_areas</span>(<span class="ruby-identifier">file_path</span>)
+  <span class="ruby-ivar">@geo_file</span> = <span class="ruby-identifier">file_path</span>
+  <span class="ruby-identifier">geo_factory</span> = <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Geographic</span>.<span class="ruby-identifier">simple_mercator_factory</span>
+  <span class="ruby-constant">RGeo</span><span class="ruby-operator">::</span><span class="ruby-constant">Shapefile</span><span class="ruby-operator">::</span><span class="ruby-constant">Reader</span>.<span class="ruby-identifier">open</span>(<span class="ruby-ivar">@geo_file</span>, <span class="ruby-value">:factory</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">geo_factory</span>, <span class="ruby-value">:srid</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-value">3785</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">file</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">file</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">record</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">build_areas</span> <span class="ruby-identifier">record</span>.<span class="ruby-identifier">geometry</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-identifier">file</span>.<span class="ruby-identifier">rewind</span>
+    <span class="ruby-identifier">record</span> = <span class="ruby-identifier">file</span>.<span class="ruby-identifier">next</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">self</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- ziped_shapefile_to_areas-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- ziped_shapefile_to_areas-method -->
+
+    
+    </section><!-- public-instance-method-details -->
+  
+  </section><!-- 5Buntitled-5D -->
+
+</div><!-- documentation -->
+
+
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 3.12.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
+

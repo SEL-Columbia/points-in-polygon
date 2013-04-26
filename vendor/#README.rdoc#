@@ -1,0 +1,39 @@
+      == Prerequirement
+  You have postgis installed and configured.
+
+  You have topojson installed:
+    1) install node.js and npm (http://nodejs.org/)
+
+    2)
+      uninstall if have old one installed: `npm uninstall topojson -g`
+      `git clone git://github.com/rainchen/topojson.git`
+      `git checkout -b add_geojson_bin origin/add_geojson_bin`
+      `cd topojson`
+      `npm install . -g`
+
+
+== Setup
+1) install gems:
+  bundle install
+
+2) create super db user
+  createuser --pwprompt --superuser pointsinarea
+
+3) setup db
+  rake db:create
+  rake db:migrate
+
+4) start server
+  rails s
+
+5) go http://localhost:3000/ and create 2 layers, using the files in public/geojson_sammple dir:
+  Single Polygon(Hottingen):
+  public/geojson_sample/210609.geojson
+
+  Multi Polygon(New York City):
+  public/geojson_sample/85090.geojson
+
+6) then you can try the api call links:
+    - a point in New York City
+    - multi points
+

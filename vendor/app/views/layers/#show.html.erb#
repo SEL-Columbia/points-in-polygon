@@ -1,0 +1,29 @@
+
+
+<p>
+  <b>Name:</b>
+  <%= @layer.name %>
+</p>
+
+
+<div id="map"></div>
+
+<%= link_to 'Edit', edit_layer_path(@layer) %> |
+<%= link_to 'Back', layers_path %>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  // var map = L.map('map').setView([51.505, -0.09], 13);
+  var map = L.map('map').setView([40.713955826286046, -73.99703979492188], 13);
+
+  // add a CloudMade tile layer with style #997
+  L.tileLayer('http://{s}.tile.cloudmade.com/42c6e747565540068a4bb4ad883f1f41/997/256/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
+  }).addTo(map);
+
+  <% @layer.areas.each do |area| %>
+    L.polygon(<%= (Area::RGEO_FACTORY.unproject area.polygon.exterior_ring).points.map {|point| [point.y, point.x]} %>).addTo(map);
+  <% end %>
+});
+
+</script>

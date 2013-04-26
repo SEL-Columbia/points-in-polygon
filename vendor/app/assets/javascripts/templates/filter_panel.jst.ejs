@@ -1,0 +1,27 @@
+<table>
+<tr class="all">
+  <td colspan="3">
+    <label>
+      <input type="radio" name="select-all" value="1">
+      <span> Select All</span>
+    </label>
+  </td>
+</tr>
+<tr class="none">
+  <td colspan="3">
+    <label>
+      <input type="radio" name="select-all" value="2">
+      <span> Select None</span>
+    </label>
+  </td>
+</tr>
+<% _.each(entries, function(entry) { %>
+<tr class="filter" data-name="<%= entry[1] %>">
+  <td>
+    <i style="background: <%= entry[0] %>"></i>
+  </td>
+  <td class="filter-name"><%= entry[1] %></td>
+  <td class="filter-count"><%= entry[2] %></td>
+</tr>
+<% }); %>
+</table>

@@ -1,0 +1,25 @@
+<table>
+  <tr class="magnitude">
+    <td colspan="2">
+      <label>
+        <input type="radio" name="switch-legend" value="1">
+        <span> As magnitude</span>
+      </label>
+    </td>
+  </tr>
+  <tr class="percentage">
+    <td colspan="2">
+      <label>
+        <input type="radio" name="switch-legend" value="2">
+        <span> As percentage</span>
+      </label>
+    </td>
+  </tr>
+
+  <% _.each(grades, function(g) { %>
+    <tr>
+      <td><i style="background:<%= colors[_.indexOf(grades, g)] %>"></i></td>
+      <td><%= g[0] + (g[1] ? '&ndash;'+g[1] : '+' ) %></td>
+    </tr>
+  <% }); %>
+</table>

@@ -1,0 +1,42 @@
+<% if controller_name == 'layers' %>
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @layer.name %>
+</p>
+
+<%= link_to 'Edit', edit_layer_path(@layer) %> |
+<%= link_to 'Back', layers_path %> |
+<%= link_to  @permalink, @permalink %>
+<% end %>
+
+<div id="map"></div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+  var dataJson = <%= raw @data_json %>;
+  var viewPoint = dataJson['view_point'];
+  app.map.createLMap('map', viewPoint, 11);
+
+
+  // grades of count based on counts of areas, [[1, 1], [3, 14], [17, 31] ...]
+  var grades = app.style.getColorGrade([1]); // [1] and 0 count make all areas is blank
+
+  var areaSet = new app.AreaSet;
+  areaSet.lLayer = new L.LayerGroup();
+  var borderAreas = dataJson['area_points'];
+  for(k in borderAreas) {
+    if(borderAreas.hasOwnProperty(k)) {
+      var border = borderAreas[k];
+      var area = new app.Area({border: border, count: 0}, {grades: grades});
+      areaSet.add(area);
+      area.get('lArea').addTo(areaSet.lLayer);
+    }
+  }
+
+  app.layer = new app.Layer;
+  app.layer.init(app.map.get('lMap'), grades, {"baseLayers": {}, "overlayLayers": {"Polygon Layer": areaSet.lLayer}});
+  $('.legend-info').remove();
+});
+</script>

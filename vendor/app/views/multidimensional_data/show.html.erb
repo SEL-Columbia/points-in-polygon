@@ -1,0 +1,113 @@
+<% if controller_name == 'multidimensional_data' %>
+<%= link_to 'Back', data_upload_path %> |
+<%= link_to  @permalink, @permalink %>
+<% end %>
+
+<div id="spinner"></div>
+<div id="map" style="height: 600px"></div>
+<script type="text/javascript">
+$(document).ready(function(){
+  // rows
+  // [ ["food_type": "meat", "_gps_latitude": "41.12313", "_gps_longtitude": "28.34534"], ... , [] ]
+  var dataJson = <%= raw @data_json %>;
+  var pointsWithIndex = dataJson['points_with_index'];
+
+  app.loading = new app.Loading;
+
+  var pointsTableName = dataJson['points_table_name'];
+
+  var radius = 100;
+
+  //var latStr = dataJson['rows'][0].at(-2);
+  //var lonStr = dataJson['rows'][0].at(-1);
+
+  //var viewPoint = [dataJson['view_point'][0]['lat'], dataJson['view_point'][0]['lon']];
+  viewPoint = dataJson['view_point'];
+  console.log(viewPoint);
+
+  var filters = dataJson['filters'];
+
+  app.map.createLMap('map', viewPoint, 5);
+
+  // array of counts of areas, uniqe and ascending. Used to get the color grade
+  pointsCountOfAreas = dataJson['points_counts_array'];
+
+  var grades = app.style.getColorGrade(pointsCountOfAreas);
+
+  // Areas Layer
+  var areaSet = new app.AreaSet;
+  areaSet.lLayerGroup = new L.LayerGroup();
+  areaSet.layerId = dataJson['layer_id'];
+  areaSet.pointsTableName = pointsTableName;
+  //areaSet.lMarkerGroup = new L.MarkerClusterGroup();
+  var borderAreas = dataJson['area_points'];
+  var countOfAreas = dataJson['points_count'];
+
+  var pointSet = new app.PointSet;
+
+  for(k in borderAreas) {
+    if(borderAreas.hasOwnProperty(k)) {
+      var border = borderAreas[k];
+      var count = countOfAreas[k];
+      var area = new app.Area({border: border, count: count, areaId: k, pointSet: pointSet, clicked: false, canShowPoints: true, canExpandChild: false}, {grades: grades});
+      areaSet.add(area);
+      area.get('lArea').addTo(areaSet.lLayerGroup);
+      //area.generateMarker(areaSet.lMarkerGroup);
+    }
+  }
+
+  // Points
+  //var colNames = dataJson['rows'][0].to(-2);
+  //pointSet.colNames = colNames;
+  pointSet.lLayerGroup = new L.FeatureGroup();
+  pointSet.pointsTableName = pointsTableName;
+  pointSet.colNames = filters;
+  //var allAttrs = {};
+
+  areaSet.pointSet = pointSet;
+
+  app.pointSet = pointSet;
+
+  // Create all points and add to pointSet
+  for(var i=0;i < pointsWithIndex.length;i++) {
+    var colValues = {}
+    //_.each(colNames, function(col) {
+    //  colValues[col] = rows[i][col];
+    //  allAttrs[col] = allAttrs[col] || [];
+    //  allAttrs[col].push(rows[i][col]);
+    //});
+    lat = pointsWithIndex[i]['lat'];
+    lon = pointsWithIndex[i]['lon'];
+    index = pointsWithIndex[i]['index'];
+    var point = new app.Point({lat: lat, lon: lon, pointSet: pointSet, colValues: colValues, isOnMap: false, isExisted: true, isSelected: true, tableIndex: index}, {});
+    pointSet.add(point);
+    //point.addTo(pointSet.lLayerGroup);
+  }
+
+  pointSet.generateAttrColors();//allAttrs);
+
+  // Filter Panel
+  app.filterPanel = new app.FilterPanel({col: 'None', attrAndCounts: [], pointSet: pointSet, areaSet: areaSet, pointsTableName: pointsTableName});
+  app.filterPanelView = new app.FilterPanelView({model: app.filterPanel, map: app.map.get('lMap')});
+  app.filterPanel.set('view', app.filterPanelView);
+
+  // each colsFeatureGroup has no points in the leaflet layer
+  // but when it is switched, the points will change the styles
+  var colsFeatureGroup = {};
+  _.each(_.union(['None'], filters), function(col){
+    var colLayer = new app.Layer({name: col, lLayer: new L.FeatureGroup, pointSet: pointSet, filterPanelView: app.filterPanelView, filterPanel: app.filterPanel});
+    colsFeatureGroup[col] = colLayer.get('lLayer');
+    colLayer.bindOnAdd();
+  });
+
+  app.layer = new app.Layer;
+  app.layer.init(app.map.get('lMap'), grades, {"baseLayers": colsFeatureGroup, "overlayLayers": {"Polygon Layer": areaSet.lLayerGroup, "Points Layer": pointSet.lLayerGroup}});
+
+  app.legend = new app.Legend({grades: grades, style: app.style, areaSet: areaSet});
+  app.legendView = new app.LegendView({model: app.legend, map: app.map.get('lMap')});
+  app.legendView.render();
+
+  areaSet.legend = app.legend;
+});
+
+</script>

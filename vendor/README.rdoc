@@ -1,0 +1,58 @@
+== Prerequirement
+  You have postgis installed and configured.
+
+  You have topojson installed:
+    1) install node.js and npm (http://nodejs.org/)
+
+    2)
+      uninstall if have old one installed: `npm uninstall topojson -g`
+      `git clone git://github.com/rainchen/topojson.git`
+      `git checkout -b add_geojson_bin origin/add_geojson_bin`
+      `cd topojson`
+      `npm install . -g`
+   3) Mac OSX with PostgresApp
+      If you gen an pg gem error find the pg_config file and set it on --with-pc-config
+          sudo find / -name pg_config
+          gem install pg -- --with-pg-config=/Applications/Postgres.app/Contents/MacOS/bin/pg_config
+     ERROR: `rescue in <module:FFIGeos>': Couldn't load the GEOS CAPI library. (LoadError)
+       Solution:
+          brew install geos
+  4) This is need to convert shape files to GeoJSON
+       http://www.kyngchaos.com/software/frameworks
+       get GDAL 1.9 Complete
+       simlink ogr2ogr to bin
+       ln -s /Library/Frameworks/GDAL.framework/Programs/ogr2ogr /usr/local/bin/
+
+== Setup
+1) install gems:
+  bundle install
+
+2) create super db user
+  createuser --pwprompt --superuser pointsinarea
+  If you get this error:
+    Is the server running locally and accepting connections on Unix domain socket "/var/pgsql_socket/.s.PGSQL.5432"?
+  You can fix this issue by not using the socket, but just conneting to the host:
+    createuser -h localhost --pwprompt --superuser pointsinarea
+
+
+
+3) setup db
+  rake db:create
+  rake db:migrate
+
+4) start server
+  rails s
+
+5) go http://localhost:3000/ and create 2 layers, using the files in public/geojson_sammple dir:
+  Single Polygon(Hottingen):
+  public/geojson_sample/210609.geojson
+
+  Multi Polygon(New York City):
+  public/geojson_sample/85090.geojson
+
+6) then you can try the api call links:
+    - a point in New York City
+    - multi points
+
+== Specs
+   To run test execute 'rake spec' in root folder
